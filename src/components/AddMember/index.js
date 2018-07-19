@@ -15,12 +15,11 @@ const FormItem = Form.Item;
 @Form.create()
 @connect(({ agentinfo, loading }) => ({
   agentinfo,
-  loading: loading.models.agentinfo,
+  loading: loading.effects['agentinfo/fetch'],
 }))
 
 export default class AddMember extends Component {
   state = {
-    loading: false,
     value: 1,
     modalPowerGroup:''
   };
@@ -41,7 +40,6 @@ export default class AddMember extends Component {
     e.preventDefault();
     const { dispatch, form } = this.props;
     form.validateFieldsAndScroll((err, values) => {
-      console.log(err)
       if (err) return;
       dispatch({
         type: 'agentinfo/fetch',
@@ -50,7 +48,7 @@ export default class AddMember extends Component {
     });
   }
   render(){
-    const { form ,agentinfo} = this.props;
+    const { form ,agentinfo,loading} = this.props;
     const { powerGroupList} = agentinfo;
     const { getFieldDecorator } = form;
     const formItemLayout = {
@@ -183,7 +181,7 @@ export default class AddMember extends Component {
               </div>
               }
               <FormItem {...tailFormItemLayout}>
-                <Button type="primary" htmlType="submit">提交</Button>
+                <Button type="primary" htmlType="submit" loading={loading} >提交</Button>
               </FormItem>
             </Col>
           </Row>

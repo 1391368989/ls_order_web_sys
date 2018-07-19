@@ -1,8 +1,10 @@
 import { queryPowerGroup,addPowerGroupMember} from '../services/api';
+import { message } from 'antd';
 export default {
   namespace: 'agentinfo',
   state: {
     powerGroupList: [],
+    loading:false,
   },
 
   effects: {
@@ -15,11 +17,11 @@ export default {
     },
     *fetch({ payload },{ call, put }){
       const response = yield call(addPowerGroupMember,payload);
-      console.log(response)
       yield put({
         type: 'backtrack',
         payload: response,
       });
+      message.success('提交成功');
     }
   },
 
@@ -30,8 +32,10 @@ export default {
         powerGroupList: action.payload.dataList,
       };
     },
-    backtrack(action){
-      console.log(action)
+    backtrack(state,action){
+      return {
+        ...state
+      };
     }
   },
 };
