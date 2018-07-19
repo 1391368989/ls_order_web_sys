@@ -1,0 +1,376 @@
+.textOverflow() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  white-space: nowrap;
+}
+
+.textOverflowMulti(@line: 3, @bg: #fff) {
+  overflow: hidden;
+  position: relative;
+  line-height: 1.5em;
+  max-height: @line * 1.5em;
+  text-align: justify;
+  margin-right: -1em;
+  padding-right: 1em;
+  &:before {
+    background: @bg;
+    content: '...';
+    padding: 0 1px;
+    position: absolute;
+    right: 14px;
+    bottom: 0;
+  }
+  &:after {
+    background: white;
+    content: '';
+    margin-top: 0.2em;
+    position: absolute;
+    right: 14px;
+    width: 1em;
+    height: 1em;
+  }
+}
+
+// mixins for clearfix
+// ------------------------
+.clearfix() {
+  zoom: 1;
+  &:before,
+  &:after {
+    content: ' ';
+    display: table;
+  }
+  &:after {
+    clear: both;
+    visibility: hidden;
+    font-size: 0;
+    height: 0;
+  }
+}
+
+.tableList {
+  .tableListOperator {
+    margin-bottom: 16px;
+    button {
+      margin-right: 8px;
+    }
+  }
+}
+.box{padding: 24px 32px;}
+.tableListForm {
+  :global {
+    .ant-form-item {
+      margin-bottom: 24px;
+      margin-right: 0;
+      display: flex;
+      > .ant-form-item-label {
+        width: auto;
+        line-height: 32px;
+        padding-right: 8px;
+      }
+      .ant-form-item-control {
+        line-height: 32px;
+      }
+    }
+    .ant-form-item-control-wrapper {
+      flex: 1;
+    }
+  }
+  .submitButtons {
+    white-space: nowrap;
+    margin-bottom: 24px;
+  }
+}
+
+@media screen and (max-width: @screen-lg) {
+  .tableListForm :global(.ant-form-item) {
+    margin-right: 24px;
+  }
+}
+
+@media screen and (max-width: @screen-md) {
+  .tableListForm :global(.ant-form-item) {
+    margin-right: 8px;
+  }
+}
+
+.bgfff{background: #fff;}
+.borderB{border-bottom: 1px solid #ddd;}
+
+.textl
+{
+  text-align: left;
+}
+.textr
+{
+  text-align: right;
+}
+.textc
+{
+  text-align: center;
+}
+.bold
+{
+  font-weight: 800;
+}
+.overflow
+{
+  overflow: hidden;
+}
+.fn
+{
+  font-style: normal;
+  font-weight: normal;
+}
+.nowrap
+{
+  white-space: nowrap;
+}
+.indent
+{
+  text-indent: 2em;
+}
+.no-indent
+{
+  text-indent:0 !important;
+}
+.ellipsis
+{
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.ellipsis-clasmp2{
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  overflow:hidden;
+  -webkit-line-break:auto;
+  -webkit-box-orient:vertical;
+
+}
+/*!*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*!
+.scrollbar::-webkit-scrollbar
+{
+  width: 6px;
+  height: 6px;
+  background-color: transparent;
+}
+
+!*定义滚动条轨道 内阴影+圆角*!
+.scrollbar::-webkit-scrollbar-track
+{
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  border-radius: 16px;
+  background-color: transparent;
+}
+
+!*定义滑块 内阴影+圆角*!
+.scrollbar::-webkit-scrollbar-thumb
+{
+  border-radius: 16px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+  background-color: #939393;
+}*/
+/*.scrollbar {
+  !*设置或检索滚动条亮边框颜色*!
+  scrollbar-3d-light-color:#fff
+  !*设置或检索滚动条3D界面的亮边（ThreedHighlight）颜色*!
+  scrollbar-highlight-color
+  !*设置或检索滚动条3D表面（ThreedFace）的颜色*!
+  scrollbar-face-color
+  !*设置或检索滚动条方向箭头的颜色*!
+  scrollbar-arrow-color
+  !*设置或检索滚动条3D界面的暗边（ThreedShadow）颜色*!
+  scrollbar-shadow-color
+  !*设置或检索滚动条暗边框（ThreedDarkShadow）颜色*!
+  scrollbar-dark-shadow-color
+  scrollbar-base-color
+}*/
+/* 显示和定位 */
+.disb
+{
+  display: block;
+}
+.hide
+{
+  display: none;
+}
+.inlineBlock
+{
+  display: inline-block;
+}
+.absolute
+{
+  position: absolute
+}
+.relative
+{
+  position: relative;
+}
+/* 外补丁  */
+.nomp
+{
+  margin: 0px;
+  padding: 0px;
+}
+.nomar
+{
+  margin: 0px !important;
+}
+.mar10
+{
+  margin: 10px;
+}
+.mt10
+{
+  margin-top: 10px;
+}
+.mb10
+{
+  margin-bottom: 10px;
+}
+.ml10
+{
+  margin-left: 10px;
+}
+.mr10
+{
+  margin-right: 10px;
+}
+.mar20
+{
+  margin: 20px;
+}
+.mt20
+{
+  margin-top: 20px;
+}
+.mb20
+{
+  margin-bottom: 20px;
+}
+.ml20
+{
+  margin-left: 20px;
+}
+.mr20
+{
+  margin-right: 20px;
+}
+.m0a
+{
+  margin: 0 auto;
+}
+/* 内边距  */
+.nopad
+{
+  padding: 0px;
+}
+.pad10
+{
+  padding: 10px;
+}
+.pl10
+{
+  padding-left: 10px;
+}
+.pr10
+{
+  padding-right: 10px;
+}
+.pb10
+{
+  padding-bottom: 10px;
+}
+.pt10
+{
+  padding-top: 10px;
+}
+.pad20
+{
+  padding: 20px;
+}
+.pl20
+{
+  padding-left: 20px;
+}
+.pr20
+{
+  padding-right: 20px;
+}
+.pb20
+{
+  padding-bottom: 20px;
+}
+.pt20
+{
+  padding-top: 20px;
+}
+/* 字体 */
+font
+{
+  font: 12px normal;
+}
+.nofont
+{
+  font-size: 0px;
+}
+.font12
+{
+  font-size: 12px;
+}
+.font14
+{
+  font-size: 14px;
+}
+.font16
+{
+  font-size: 16px;
+}
+.font18
+{
+  font-size: 18px;
+}
+.lh24
+{
+  line-height: 24px;
+}
+.lh18
+{
+  line-height: 18px;
+}
+/* css3.0 圆角和阴影 */
+.radius
+{
+  -moz-border-radius: 3px;
+  -khtml-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+}
+.shadow
+{
+  -moz-box-shadow: rgba(0,0,0,0.3) 0 4px 4px;
+  -webkit-box-shadow: rgba(0,0,0,0.3) 0 4px 4px;
+  -khtml-box-shadow: rgba(0,0,0,0.3) 0 4px 4px;
+  box-shadow: rgba(0,0,0,0.3) 0 4px 4px;
+}
+/* 隐藏文字 */
+.offScreen
+{
+  left: -9999px;
+  position: absolute;
+}
+::-webkit-input-placeholder { /* WebKit browsers */
+  color:    rgb(200,203,211);
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+  color:     rgb(200,203,211);
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+  color:     rgb(200,203,211);
+}
+:-ms-input-placeholder { /* Internet Explorer 10+ */
+  color: rgb(200, 203, 211);
+}
