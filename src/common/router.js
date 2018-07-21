@@ -94,7 +94,7 @@ export const getRouterData = app => {
     },
     //代理商
     '/agent/agent-info': {
-      component: dynamicWrapper(app, ['agentinfo'], () => import('../routes/Agent/AgentInfo')),
+      component: dynamicWrapper(app, ['agentinfo','addmember'], () => import('../routes/Agent/AgentInfo')),
     },
     //订单
     '/order/order-info': {

@@ -13,9 +13,9 @@ import styles from './index.less';
 const Option = Select.Option;
 const FormItem = Form.Item;
 @Form.create()
-@connect(({ agentinfo, loading }) => ({
-  agentinfo,
-  loading: loading.effects['agentinfo/fetch'],
+@connect(({ addmember, loading }) => ({
+  addmember,
+  loading: loading.effects['addmember/fetch'],
 }))
 
 export default class AddMember extends Component {
@@ -27,7 +27,7 @@ export default class AddMember extends Component {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'agentinfo/fetchTags',
+      type: 'addmember/fetchTags',
     });
   }
   handleChange =(value)=>{
@@ -42,14 +42,14 @@ export default class AddMember extends Component {
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
       dispatch({
-        type: 'agentinfo/fetch',
+        type: 'addmember/fetch',
         payload: values,
       });
     });
   }
   render(){
-    const { form ,agentinfo,loading} = this.props;
-    const { powerGroupList} = agentinfo;
+    const { form ,addmember,loading} = this.props;
+    const { powerGroupList} = addmember;
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
