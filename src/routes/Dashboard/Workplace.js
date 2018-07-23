@@ -1,7 +1,10 @@
 import React, { PureComponent } from 'react';
 import {TimelineChart} from 'components/Charts';
+import MyCharts from 'components/MyCharts';
+import { Chart, Tooltip, Geom, Legend, Axis } from 'bizcharts';
 import { connect } from 'dva';
 import moment from 'moment';
+
 import {
   Row,
   Col,
@@ -103,6 +106,13 @@ export default class Workplace extends PureComponent {
         </Row>
       </Form>
     );
+  };
+  myChart(){
+
+
+    return(
+      <div id="main" style={{ width: 500, height: 500}}></div>
+    )
   }
   render() {
     const data = {
@@ -135,7 +145,6 @@ export default class Workplace extends PureComponent {
       sold: { alias: '销售量' },
       genre: { alias: '游戏种类' }
     };
-
     const dataSource = [{
       key: '1',
       no: '0225105',
@@ -180,6 +189,58 @@ export default class Workplace extends PureComponent {
         },
       }
     ];
+    const myDate =[
+      {time:'05-01',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-02',expect:'100',actual:'70',ratio:'70%'},
+      {time:'05-03',expect:'100',actual:'80',ratio:'80%'},
+      {time:'05-04',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-05',expect:'100',actual:'20',ratio:'20%'},
+      {time:'05-06',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-07',expect:'100',actual:'30',ratio:'30%'},
+      {time:'05-08',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-09',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-10',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-11',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-12',expect:'100',actual:'40',ratio:'40%'},
+      {time:'05-13',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-14',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-15',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-16',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-17',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-18',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-19',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-20',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-21',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-22',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-23',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-24',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-25',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-26',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-27',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-28',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-30',expect:'100',actual:'90',ratio:'90%'},
+      {time:'05-31',expect:'100',actual:'90',ratio:'90%'},
+      ];
+    const dataList = [
+      { name:'预计单量', 'Jan.': 18.9, 'Feb.': 28.8, 'Mar.' :39.3, 'Apr.': 81.4, 'May': 47, 'Jun.': 20.3, 'Jul.': 24, 'Aug.': 35.6, },
+      { name:'实际单量', 'Jan.': 12.4, 'Feb.': 23.2, 'Mar.' :34.5, 'Apr.': 99.7, 'May': 52.6, 'Jun.': 35.5, 'Jul.': 37.4, 'Aug.': 42.4},
+      { name:'合格率', 'Jan.': 10, 'Feb.': 20, 'Mar.' :10, 'Apr.': 20, 'May': 20, 'Jun.':20, 'Jul.':30, 'Aug.':20}
+    ];
+    const ds = new DataSet();
+    const dv = ds.createView().source(dataList);
+
+    dv.transform({
+      type: 'fold',
+      fields: [ 'Jan.','Feb.','Mar.','Apr.','May','Jun.','Jul.','Aug.' ], // 展开字段集
+      key: '月份', // key字段
+      value: '月均降雨量', // value字段
+    });
+    dv.transform({
+      type: 'ratio',
+      fields: [ 'Jan.','Feb.','Mar.','Apr.','May','Jun.','Jul.','Aug.' ], // 展开字段集
+      key: '月份', // key字段
+      value: '温度', // value字段
+    });
     return (
       <PageHeaderLayout>
         <Card bordered={false}>
@@ -194,9 +255,17 @@ export default class Workplace extends PureComponent {
             data={data.offlineChartData}
             titleMap={{ y1: '预计单量', y2: '实际单量',y3:'合格率' }}
           />
+          <Chart height={400} data={dv} forceFit padding={[ 20, 30, 20, 30]}>
+            <Axis name="月份" />
+            <Axis name="月均降雨量" />
+            <Legend />
+            <Tooltip crosshairs={{type : "y"}}/>
+            <Geom type='interval' position="月份*月均降雨量" color={'name'} adjust={[{type: 'dodge',marginRatio: 1/32}]} />
+            <Geom type="line" position="月份*温度" />
+          </Chart>
+          <MyCharts/>
         </Card>
       </PageHeaderLayout>
-
     );
   }
 }
