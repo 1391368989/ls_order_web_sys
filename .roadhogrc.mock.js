@@ -1,6 +1,6 @@
 import mockjs from 'mockjs';
 import { getRule, postRule } from './mock/rule';
-import { getActivities, getNotice, getFakeList } from './mock/api';
+import { getActivities, getNotice, getFakeList  ,getOrderChartData} from './mock/api';
 import { getFakeChartData } from './mock/chart';
 import { getProfileBasicData } from './mock/profile';
 import { getProfileAdvancedData } from './mock/profile';
@@ -174,7 +174,8 @@ const proxy = {
     {name:'网点',value:'dot'},
     ]
   },
-  'POST /api/addPowerGroupMember':{status:true}
+  'POST /api/addPowerGroupMember':{status:true},
+  'POST /api/getOrderChartData':getOrderChartData,
 
 };
 

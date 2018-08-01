@@ -1,15 +1,12 @@
-import { queryAgentInfo} from '../services/api';
+import { getOrderChartData} from '../services/api';
 export default {
   namespace: 'workplace',
-
   state: {
-    list: [],
-    pagination: {},
+    chartData: null,
   },
-
   effects: {
     *fetch({ payload }, { call, put }) {
-      const response = yield call(queryAgentInfo, payload);
+      const response = yield call(getOrderChartData, payload);
       yield put({
         type: 'save',
         payload: response,
@@ -21,7 +18,7 @@ export default {
     save(state, action) {
       return {
         ...state,
-        list: action.payload,
+        chartData: action.payload.dataList,
       };
     }
   },

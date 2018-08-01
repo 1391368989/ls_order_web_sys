@@ -288,9 +288,49 @@ export const getActivities = [
     template: '在 @{group} 新建项目 @{project}',
   },
 ];
+export function getMath(){
+  let a , b , p;
+  for(let i = true;i == true; ){
+    a = Math.floor(Math.random()*100);
+    b = Math.floor(Math.random()*100);
+    if(a<b){
+      p = Math.floor(a/b * 100);
+      i = false
+   }
+  }
+  const obj ={
+    expect :b,
+    actual:a,
+    ratio: p
+  }
+  return obj;
+}
+export function getOrderChartData(req, res, u){
+  console.log(req.body)
+  let dataList = []
+  for(let i = 1; i <= 31 ; i ++ ){
+    let obj = getMath()
+    dataList.push({
+      time:'07-'+i,
+      expect:obj.expect,
+      actual:obj.actual,
+      ratio:obj.ratio +'%',
+    })
+  }
 
+  let data={
+    dataList:dataList
+  }
+
+  if (res && res.json) {
+    res.json(data);
+  } else {
+    return data;
+  }
+}
 export default {
   getNotice,
   getActivities,
   getFakeList,
+  getOrderChartData,
 };
