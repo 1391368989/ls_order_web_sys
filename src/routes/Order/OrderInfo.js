@@ -29,11 +29,22 @@ const status= ['进行中','待核实','已核实'];
 const statusMap = ['default', 'await','verify'];
 const FormItem = Form.Item;
 @Form.create()
-@connect(({ workplace, loading }) => ({
-  workplace,
+@connect(({ order, loading }) => ({
+  order,
   loading: loading.models.workplace,
 }))
 export default class OrderInfo extends Component {
+  componentDidMount() {
+    const { dispatch } = this.props;
+
+    dispatch({
+      type: 'order/orderList',
+      payload: {
+        search_orderPromulgator_LIKE:'提供者'
+      },
+    });
+  }
+
   handleSearch = e => {
     e.preventDefault();
     const { dispatch, form } = this.props;

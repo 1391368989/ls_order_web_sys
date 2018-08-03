@@ -13,12 +13,14 @@ const { AuthorizedRoute } = Authorized;
 function RouterConfig({ history, app }) {
   const routerData = getRouterData(app);
   const UserLayout = routerData['/user'].component;
+  const MobileLayout = routerData['/phone'].component;
   const BasicLayout = routerData['/'].component;
   return (
     <LocaleProvider locale={zhCN}>
       <ConnectedRouter history={history}>
         <Switch>
           <Route path="/user" component={UserLayout} />
+          <Route path="/phone" component={MobileLayout} />
           <AuthorizedRoute
             path="/"
             render={props => <BasicLayout {...props} />}

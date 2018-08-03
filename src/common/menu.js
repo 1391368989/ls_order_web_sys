@@ -239,6 +239,22 @@ const menuData = [
       },*/
     ],
   },
+  {
+    name: '用户',
+    icon: 'phone',
+    path: 'phone',
+    authority: 'guest',
+    children: [
+      {
+        name: '基本信息',
+        path: 'info',
+      },
+      {
+        name: '提交成功',
+        path: 'success',
+      },
+    ],
+  },
 ];
 
 function formatter(data, parentPath = '/', parentAuthority) {

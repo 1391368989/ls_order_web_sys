@@ -98,7 +98,7 @@ export const getRouterData = app => {
     },
     //订单
     '/order/order-info': {
-      component: dynamicWrapper(app, [], () => import('../routes/Order/OrderInfo')),
+      component: dynamicWrapper(app, ['order'], () => import('../routes/Order/OrderInfo')),
     },
     '/order/to-be-verified': {
       component: dynamicWrapper(app, [], () => import('../routes/Order/ToBeVerified')),
@@ -215,6 +215,16 @@ export const getRouterData = app => {
       component: dynamicWrapper(app, ['error'], () =>
         import('../routes/Exception/triggerException')
       ),
+    },
+
+    '/phone': {
+      component: dynamicWrapper(app, [], () => import('../layouts/MobileLayout')),
+    },
+    '/phone/info': {
+      component: dynamicWrapper(app, [], () => import('../routes/Mobile/UserInfo')),
+    },
+    '/phone/success': {
+      component: dynamicWrapper(app, [], () => import('../routes/Mobile/Success')),
     },
     '/user': {
       component: dynamicWrapper(app, [], () => import('../layouts/UserLayout')),

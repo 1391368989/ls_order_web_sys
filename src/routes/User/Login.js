@@ -5,7 +5,7 @@ import { Checkbox, Alert, Icon,Modal } from 'antd';
 import Login from 'components/Login';
 import styles from './Login.less';
 
-const { Tab, UserName, Password, Mobile, Captcha, Submit } = Login;
+const { UserName, Password, Mobile, Captcha, Submit } = Login;
 
 @connect(({ login, loading }) => ({
   login,
@@ -60,14 +60,14 @@ export default class LoginPage extends Component {
     return (
       <div className={styles.main}>
         <Login defaultActiveKey={type} onTabChange={this.onTabChange} onSubmit={this.handleSubmit}>
-          <Tab key="account" tab="账户密码登录">
-            {login.status === 'error' &&
-              login.type === 'account' &&
-              !submitting &&
-              this.renderMessage('账户或密码错误（admin/888888）')}
-            <UserName name="userName" placeholder="admin/user" />
-            <Password name="password" placeholder="888888/123456" />
-          </Tab>
+
+          {login.status === 'error' &&
+          login.type === 'account' &&
+          !submitting &&
+          this.renderMessage('账户或密码错误（admin/888888）')}
+          <UserName name="userPhone" placeholder="admin/user" />
+          <Password name="password" placeholder="888888/123456" />
+
       {/*    <Tab key="mobile" tab="手机号登录">
             {login.status === 'error' &&
               login.type === 'mobile' &&
@@ -76,6 +76,9 @@ export default class LoginPage extends Component {
             <Mobile name="mobile" />
             <Captcha name="captcha" />
           </Tab>*/}
+          <div>
+
+          </div>
           <div>
             <Checkbox checked={autoLogin} onChange={this.changeAutoLogin}>
               自动登录

@@ -97,7 +97,7 @@ export async function addPowerGroupMember(params) {
 }
 export async function getOrderChartData(params) {
   return request('/api/getOrderChartData',{
-    method:'POST',
+    method:'GET',
     body:params,
   });
 }

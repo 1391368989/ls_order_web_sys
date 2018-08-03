@@ -1,12 +1,24 @@
 const path = require('path');
-
+const host = 'http://112.27.113.51:9040'
 export default {
   entry: 'src/index.js',
-  extraBabelPlugins: [['import', { libraryName: 'antd', libraryDirectory: 'es', style: true }]],
+  extraBabelPlugins: [
+    ['import', { libraryName: 'antd', libraryDirectory: 'es', style: true }],
+  ],
   env: {
     development: {
       extraBabelPlugins: ['dva-hmr'],
     },
+  },
+  proxy: {
+    "/order": {
+      target: host,
+      changeOrigin: true,
+    },
+    "/loginUser": {
+      target: host,
+      changeOrigin: true,
+    }
   },
   externals: {
     '@antv/data-set': 'DataSet',

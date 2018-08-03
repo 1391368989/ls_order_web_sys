@@ -49,7 +49,7 @@ export default class AddMember extends Component {
   }
   render(){
     const { form ,addmember,loading} = this.props;
-    const { powerGroupList} = addmember;
+    const { powerGroupList ,provinceList} = addmember;
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
@@ -126,6 +126,20 @@ export default class AddMember extends Component {
               </FormItem>
               {this.state.modalPowerGroup=='agent'&&
               <div>
+                <FormItem label='所属省份' {...formItemLayout}>
+                  {getFieldDecorator('province',{
+                    rules: [{
+                      required: true,
+                      message: '请输入所属城市!',
+                    }],
+                  })(
+                    <Select placeholder="请选择所属省/直辖市">
+                      {provinceList.map((item,index) =>
+                        <Option value={item.id} key={index}>{item.name}</Option>
+                      )}
+                    </Select>
+                  )}
+                </FormItem>
                 <FormItem label='所属城市' {...formItemLayout}>
                   {getFieldDecorator('city',{
                     rules: [{
@@ -134,8 +148,8 @@ export default class AddMember extends Component {
                     }],
                   })(
                     <Select placeholder="请输入所属城市">
-                      {powerGroupList.map((item,index) =>
-                        <Option value={item.value} key={index}>{item.name}</Option>
+                      {provinceList.map((item,index) =>
+                        <Option value={item.id} key={index}>{item.name}</Option>
                       )}
                     </Select>
                   )}

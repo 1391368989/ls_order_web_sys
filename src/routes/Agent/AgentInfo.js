@@ -54,7 +54,7 @@ export default class AgentInfo extends Component {
     this.setState({
       visible: false,
     });
-  }
+  };
 
   handleCancel = (e) => {
     console.log(e);
@@ -108,6 +108,7 @@ export default class AgentInfo extends Component {
     const { dispatch, form } = this.props;
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
+      console.log('moment')
       const date = [moment(values.date[0]._d).format('YYYY-MM-DD HH:mm'),moment(values.date[1]._d).format('YYYY-MM-DD HH:mm')];
       values ={
         ...values,

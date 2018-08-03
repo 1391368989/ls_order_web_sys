@@ -2,7 +2,7 @@ import fetch from 'dva/fetch';
 import { notification } from 'antd';
 import { routerRedux } from 'dva/router';
 import store from '../index';
-
+/*import qs from 'qs'*/
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
   201: '新建或修改数据成功。',
@@ -58,7 +58,13 @@ export default function request(url, options) {
         'Content-Type': 'application/json; charset=utf-8',
         ...newOptions.headers,
       };
-      newOptions.body = JSON.stringify(newOptions.body);
+      // 若是有做鉴权token , 就给头部带上token
+      if (localStorage.token) {
+        newOptions.headers.Authorization = localStorage.token
+      }
+        newOptions.body = JSON.stringify(newOptions.body);
+      // 序列化
+      //newOptions.body = qs.stringify(newOptions.body)
     } else {
       // newOptions.body is FormData
       newOptions.headers = {

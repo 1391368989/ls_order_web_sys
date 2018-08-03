@@ -1,9 +1,11 @@
 import { queryPowerGroup,addPowerGroupMember} from '../services/api';
+import {getProvince} from '../services/order'
 import { message } from 'antd';
 export default {
   namespace: 'addmember',
   state: {
     powerGroupList: [],
+    provinceList: [],
     loading:false,
   },
 
@@ -13,6 +15,11 @@ export default {
       yield put({
         type: 'save',
         payload: response,
+      });
+      const res = yield call(getProvince);
+      yield put({
+        type: 'province',
+        payload: res,
       });
     },
     *fetch({ payload },{ call, put }){
@@ -36,6 +43,12 @@ export default {
       return {
         ...state
       };
+    },
+    province(state,action){
+      return{
+        ...state,
+        provinceList: action.payload.data.dataList,
+      }
     }
   },
 };
