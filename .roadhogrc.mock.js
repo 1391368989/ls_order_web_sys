@@ -5,6 +5,7 @@ import { getFakeChartData } from './mock/chart';
 import { getProfileBasicData } from './mock/profile';
 import { getProfileAdvancedData } from './mock/profile';
 import { getNotices } from './mock/notices';
+import { getMenuData } from './mock/menu';
 import { format, delay } from 'roadhog-api-doc';
 
 // 是否禁用代理
@@ -177,6 +178,7 @@ const proxy = {
   },
   'POST /api/addPowerGroupMember':{status:true},
   'POST /api/getOrderChartData':getOrderChartData,
+  'POST /order/menuData':getMenuData,
   'GET /order/(.*)':`${apiurl}/order/city/selectProvince`,
 };
 

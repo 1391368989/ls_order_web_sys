@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Form, Button, Row, Col } from 'antd';
+import { Form, Button, Row, Col,Icon } from 'antd';
 import omit from 'omit.js';
 import styles from './index.less';
 import map from './map';
-import test from '../../assets/images/banner1.jpg'
-
 const FormItem = Form.Item;
 
 function generator({ defaultProps, defaultRules, type }) {
@@ -20,6 +18,8 @@ function generator({ defaultProps, defaultRules, type }) {
         super(props);
         this.state = {
           count: 0,
+          iconCode:'http://112.27.113.51:9040/createSecurityCode?a=0',
+          codeQuery:0,
         };
       }
 
@@ -34,7 +34,6 @@ function generator({ defaultProps, defaultRules, type }) {
       componentWillUnmount() {
         clearInterval(this.interval);
       }
-
       onGetCaptcha = () => {
         let count = 59;
         this.setState({ count });
@@ -50,8 +49,11 @@ function generator({ defaultProps, defaultRules, type }) {
           }
         }, 1000);
       };
-      onGetCode = () =>{
-        console.log('刷新图片')
+      toggleCode = () =>{
+        this.state.codeQuery = ++this.state.codeQuery;
+        this.setState({
+          iconCode:'http://112.27.113.51:9040/createSecurityCode?a='+this.state.codeQuery
+        })
       };
       render() {
         const { form } = this.context;
@@ -93,17 +95,21 @@ function generator({ defaultProps, defaultRules, type }) {
           );
         }
         if (type === 'Code') {
-          const inputProps = omit(otherProps, ['onGetCode']);
+          const inputProps = omit(otherProps, ['toggleCode']);
           return (
             <FormItem>
               <Row gutter={8}>
-                <Col span={16}>
+                <Col span={10}>
                   {getFieldDecorator(name, options)(
                     <WrappedComponent {...defaultProps} {...inputProps} />
                   )}
                 </Col>
-                <Col span={8}>
-                  <img src={test} height={40} onClick={this.onGetCode} style={{verticalAlign:'top'}}/>
+                <Col span={14}>
+                  <img src={this.state.iconCode} height={40} onClick={this.toggleCode} style={{verticalAlign:'top'}}/>
+                  <span style={{fontSize:14,marginLeft:10,cursor:'pointer'}} onClick={this.toggleCode}>
+                    <Icon type="reload"/>
+                       <a>点击刷新</a>
+                  </span>
                 </Col>
               </Row>
             </FormItem>

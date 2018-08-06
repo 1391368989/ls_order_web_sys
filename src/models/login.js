@@ -21,6 +21,7 @@ export default {
         payload: response,
       });
       // Login successfully
+      console.log(response)
       if (response.flag === 0) {
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
@@ -65,14 +66,14 @@ export default {
 
   reducers: {
     changeLoginStatus(state, { payload }) {
-      if(typeof payload.data.user === 'object'){
-
+      if(payload.data&&typeof payload.data.user === 'object'){
+        setUserStart(payload.data.user);
       }
-      setUserStart(payload.data.user);
+      console.log(payload)
       return {
         ...state,
-        status: payload.status,
-        type: payload.type,
+        status: payload.flag,
+        type: payload.msg,
       };
     },
   },
