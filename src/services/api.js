@@ -101,3 +101,12 @@ export async function getOrderChartData(params) {
     body:params,
   });
 }
+/*
+ * 获取菜单列表
+ * */
+export async function getMenuData(query) {
+  return request('/api/menuData', {
+    method: 'POST',
+    body:query
+  });
+}

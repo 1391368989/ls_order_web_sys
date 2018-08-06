@@ -52,6 +52,7 @@ export default class SiderMenu extends PureComponent {
   constructor(props) {
     super(props);
     this.menus = props.menuData;
+    console.log(this.menus)
     this.flatMenuKeys = getFlatMenuKeys(props.menuData);
     this.state = {
       openKeys: this.getDefaultCollapsedSubMenus(props),
@@ -59,8 +60,16 @@ export default class SiderMenu extends PureComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { location } = this.props;
+   /* const { location } = this.props;
     if (nextProps.location.pathname !== location.pathname) {
+      this.setState({
+        openKeys: this.getDefaultCollapsedSubMenus(nextProps),
+      });
+    }*/
+    if ('menuData' in nextProps) {
+      const { menuData = [] } = nextProps;
+      this.flatMenuKeys = getFlatMenuKeys(menuData);
+      this.menus = menuData;
       this.setState({
         openKeys: this.getDefaultCollapsedSubMenus(nextProps),
       });

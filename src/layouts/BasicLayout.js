@@ -99,10 +99,10 @@ class BasicLayout extends React.PureComponent {
   };
 
   getChildContext() {
-    const { location, routerData } = this.props;
+    const { location, routerData, menu } = this.props;
     return {
       location,
-      breadcrumbNameMap: getBreadcrumbNameMap(getMenuData(), routerData),
+      breadcrumbNameMap: getBreadcrumbNameMap(menu.list, routerData),
     };
   }
 
@@ -116,6 +116,9 @@ class BasicLayout extends React.PureComponent {
     dispatch({
       type: 'user/fetchCurrent',
     });
+    dispatch({
+      type: 'menu/fetch',
+    });
   }
 
   componentWillUnmount() {
@@ -125,7 +128,7 @@ class BasicLayout extends React.PureComponent {
   getPageTitle() {
     const { routerData, location } = this.props;
     const { pathname } = location;
-    let title = 'Ant Design Pro';
+    let title = '订单管理系统';
     let currRouterData = null;
     // match params path
     Object.keys(routerData).forEach(key => {
@@ -201,6 +204,7 @@ class BasicLayout extends React.PureComponent {
 
   render() {
     const {
+      menu,
       currentUser,
       collapsed,
       fetchingNotices,
@@ -211,6 +215,7 @@ class BasicLayout extends React.PureComponent {
     } = this.props;
     const { isMobile: mb } = this.state;
     const bashRedirect = this.getBaseRedirect();
+    console.log(menu.list)
     const layout = (
       <Layout>
         <SiderMenu
@@ -219,7 +224,7 @@ class BasicLayout extends React.PureComponent {
           // If you do not have the Authorized parameter
           // you will be forced to jump to the 403 interface without permission
           Authorized={Authorized}
-          menuData={getMenuData()}
+          menuData={menu.list}
           collapsed={collapsed}
           location={location}
           isMobile={mb}
@@ -302,7 +307,8 @@ class BasicLayout extends React.PureComponent {
   }
 }
 
-export default connect(({ user, global = {}, loading }) => ({
+export default connect(({ user, global = {},menu, loading }) => ({
+  menu:menu,
   currentUser: user.currentUser,
   collapsed: global.collapsed,
   fetchingNotices: loading.effects['global/fetchNotices'],

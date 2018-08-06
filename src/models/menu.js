@@ -1,11 +1,11 @@
-import { getMenuData } from '../services/order';
+import { getMenuData } from '../services/api';
 
 export default {
   namespace: 'menu',
   state: {
     list: [],
   },
-  effect: {
+  effects: {
     *fetch({ payload }, { call, put }) {
       const response = yield call(getMenuData, payload);
       yield put({
@@ -14,12 +14,12 @@ export default {
       });
     },
   },
-  reducers :{
+  reducers: {
     queryList(state, action) {
       return {
         ...state,
         list: action.payload,
       };
     },
-  }
-}
+  },
+};
