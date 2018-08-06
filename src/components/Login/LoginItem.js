@@ -4,6 +4,7 @@ import { Form, Button, Row, Col } from 'antd';
 import omit from 'omit.js';
 import styles from './index.less';
 import map from './map';
+import test from '../../assets/images/banner1.jpg'
 
 const FormItem = Form.Item;
 
@@ -49,7 +50,9 @@ function generator({ defaultProps, defaultRules, type }) {
           }
         }, 1000);
       };
-
+      onGetCode = () =>{
+        console.log('刷新图片')
+      };
       render() {
         const { form } = this.context;
         const { getFieldDecorator } = form;
@@ -84,6 +87,23 @@ function generator({ defaultProps, defaultRules, type }) {
                   >
                     {count ? `${count} s` : '获取验证码'}
                   </Button>
+                </Col>
+              </Row>
+            </FormItem>
+          );
+        }
+        if (type === 'Code') {
+          const inputProps = omit(otherProps, ['onGetCode']);
+          return (
+            <FormItem>
+              <Row gutter={8}>
+                <Col span={16}>
+                  {getFieldDecorator(name, options)(
+                    <WrappedComponent {...defaultProps} {...inputProps} />
+                  )}
+                </Col>
+                <Col span={8}>
+                  <img src={test} height={40} onClick={this.onGetCode} style={{verticalAlign:'top'}}/>
                 </Col>
               </Row>
             </FormItem>

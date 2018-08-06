@@ -6,7 +6,6 @@ import b from '../../assets/images/banner2.png'
 
 export default class SowingMap extends Component{
   onChange =(a, b, c)=>{
-    console.log(a, b, c);
   }
   render(){
    return(

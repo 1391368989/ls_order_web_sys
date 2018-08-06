@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
-import { Checkbox, Alert, Icon,Modal } from 'antd';
+import { Checkbox, Alert, Modal, Input ,Row ,Col, Icon } from 'antd';
 import Login from 'components/Login';
 import styles from './Login.less';
+import test from '../../assets/images/banner1.jpg'
+/*import Row from "antd/lib/grid/row.d";*/
 
-const { UserName, Password, Mobile, Captcha, Submit } = Login;
-
+const { UserName, Password, Code, Submit } = Login;
+const InputGroup = Input.Group;
 @connect(({ login, loading }) => ({
   login,
   submitting: loading.effects['login/login'],
@@ -64,10 +66,10 @@ export default class LoginPage extends Component {
           {login.status === 'error' &&
           login.type === 'account' &&
           !submitting &&
-          this.renderMessage('账户或密码错误（admin/888888）')}
-          <UserName name="userPhone" placeholder="admin/user" />
-          <Password name="password" placeholder="888888/123456" />
-
+          this.renderMessage('账户或密码错误')}
+          <UserName name="userPhone" placeholder="请输入用户名/手机号" />
+          <Password name="password" placeholder="请输入密码" />
+          <Code name="code" placeholder="请输入验证码"/>
       {/*    <Tab key="mobile" tab="手机号登录">
             {login.status === 'error' &&
               login.type === 'mobile' &&
@@ -76,9 +78,6 @@ export default class LoginPage extends Component {
             <Mobile name="mobile" />
             <Captcha name="captcha" />
           </Tab>*/}
-          <div>
-
-          </div>
           <div>
             <Checkbox checked={autoLogin} onChange={this.changeAutoLogin}>
               自动登录

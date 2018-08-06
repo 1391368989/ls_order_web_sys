@@ -13,8 +13,12 @@ const map = {
     rules: [
       {
         required: true,
-        message: 'Please enter username!',
+        message: '请输入用户名!',
       },
+      {
+        max:20,
+        message:'格式不对'
+      }
     ],
   },
   Password: {
@@ -28,8 +32,12 @@ const map = {
     rules: [
       {
         required: true,
-        message: 'Please enter password!',
+        message: '请输入密码!',
       },
+      {
+        max:20,
+        message:'格式不对'
+      }
     ],
   },
   Mobile: {
@@ -64,6 +72,25 @@ const map = {
       },
     ],
   },
+  Code: {
+    component: Input,
+    props: {
+      size: 'large',
+      prefix: <Icon type="code-o" className={styles.prefixIcon} />,
+      placeholder: 'code',
+    },
+    rules: [
+      {
+        required: true,
+        message: '请输入验证码',
+      },
+      {
+        pattern: /^\d{4}$/,
+        message: '验证码格式不对',
+      },
+    ],
+  },
+
 };
 
 export default map;
