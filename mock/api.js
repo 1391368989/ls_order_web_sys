@@ -320,7 +320,7 @@ export function getOrderChartData(req, res, u){
 
   let data={
     dataList:dataList
-  }
+  };
 
   if (res && res.json) {
     res.json(data);

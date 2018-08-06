@@ -13,7 +13,7 @@ const jurisdiction = {
   '运营组':'operate',
   //合计 {  工作台 ，分析数据， 代理商管理 ，订单管理，财务管理 ，用户管理，客单，设置}
 }
-export const role = ['superAdmin','admin','agent','dot','finance','operate'];
+export const role = ['user'];
 const power = {
   //工作台
   'dashboard':['superAdmin','admin','agent','dot','finance','operate'],

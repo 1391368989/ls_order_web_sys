@@ -21,8 +21,8 @@ export default {
         payload: response,
       });
       // Login successfully
-      console.log(response)
       if (response.flag === 0) {
+        reloadAuthorized();
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
         let { redirect } = params;
@@ -38,7 +38,6 @@ export default {
             return;
           }
         }
-        return
         yield put(routerRedux.replace(redirect || '/'));
       }
     },
@@ -46,10 +45,8 @@ export default {
       yield put({
         type: 'changeLoginStatus',
         payload: {
-          status: false,
-          data:{
-            user: 'guest',
-          }
+          flag: -1,
+          msg:''
         },
       });
       reloadAuthorized();
@@ -66,10 +63,13 @@ export default {
 
   reducers: {
     changeLoginStatus(state, { payload }) {
-      if(payload.data&&typeof payload.data.user === 'object'){
-        setUserStart(payload.data.user);
+      if(payload.flag === 0){
+        //登录成功
+        setAuthority('user');
+      }else {
+        //登录成功或退出登录
+        setAuthority('guest');
       }
-      console.log(payload)
       return {
         ...state,
         status: payload.flag,

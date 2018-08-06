@@ -6,7 +6,9 @@ export default {
   },
   effects: {
     *fetch({ payload }, { call, put }) {
+      console.log('干活了');
       const response = yield call(getOrderChartData, payload);
+      console.log(response);
       yield put({
         type: 'save',
         payload: response,

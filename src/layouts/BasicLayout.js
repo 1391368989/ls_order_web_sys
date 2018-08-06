@@ -14,7 +14,7 @@ import SiderMenu from '../components/SiderMenu';
 import NotFound from '../routes/Exception/404';
 import { getRoutes } from '../utils/utils';
 import Authorized from '../utils/Authorized';
-import { getMenuData } from '../common/menu';
+/*import { getMenuData } from '../common/menu';*/
 import logo from '../assets/logo.png';
 
 const { Content, Header, Footer } = Layout;
@@ -37,7 +37,7 @@ const getRedirect = item => {
     }
   }
 };
-getMenuData().forEach(getRedirect);
+/*getMenuData().forEach(getRedirect);*/
 
 /**
  * 获取面包屑映射
@@ -215,7 +215,6 @@ class BasicLayout extends React.PureComponent {
     } = this.props;
     const { isMobile: mb } = this.state;
     const bashRedirect = this.getBaseRedirect();
-    console.log(menu.list)
     const layout = (
       <Layout>
         <SiderMenu

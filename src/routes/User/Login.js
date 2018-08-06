@@ -60,14 +60,13 @@ export default class LoginPage extends Component {
     const { login, submitting } = this.props;
     const { type, autoLogin } = this.state;
     console.log(login)
-    console.log(submitting)
     return (
       <div className={styles.main}>
         <Login defaultActiveKey={type} onTabChange={this.onTabChange} onSubmit={this.handleSubmit}>
 
-          {login.flag === -1 &&
+          {login.status === -1 &&
           !submitting &&
-          this.renderMessage('账户或密码错误')}
+          this.renderMessage(login.type)}
           <UserName name="userPhone" placeholder="请输入用户名/手机号" />
           <Password name="password" placeholder="请输入密码" />
           <Code name="code" placeholder="请输入验证码"/>
