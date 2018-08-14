@@ -1,17 +1,18 @@
-import { queryPowerGroup,addPowerGroupMember} from '../services/api';
-import {getProvince} from '../services/order'
+import {getProvince,getCity,getDistrict,insertCompany ,selectDictByType} from '../services/order'
 import { message } from 'antd';
 export default {
   namespace: 'addmember',
   state: {
     powerGroupList: [],
     provinceList: [],
+    cityList:[],
+    districtList:[],
     loading:false,
   },
 
   effects: {
-    *fetchTags( _, { call, put }) {
-      const response = yield call(queryPowerGroup);
+    *fetchTags({payload}, { call, put }) {
+      const response = yield call(selectDictByType,payload);
       yield put({
         type: 'save',
         payload: response,
@@ -22,13 +23,31 @@ export default {
         payload: res,
       });
     },
+    *getCity({ payload },{ call, put }){
+      const response = yield call(getCity,payload);
+      yield put({
+        type: 'saveCity',
+        payload: response,
+      });
+    },
+    *getDistrict({ payload },{ call, put }){
+      const response = yield call(getDistrict,payload);
+      yield put({
+        type: 'saveDistrict',
+        payload: response,
+      });
+    },
     *fetch({ payload },{ call, put }){
-      const response = yield call(addPowerGroupMember,payload);
+      const response = yield call(insertCompany,payload);
       yield put({
         type: 'backtrack',
         payload: response,
       });
-      message.success('提交成功');
+      if(response.flag === 0){
+        message.success('提交成功');
+      }else{
+        message.success(response.msg);
+      }
     }
   },
 
@@ -36,10 +55,10 @@ export default {
     save(state, action) {
       return {
         ...state,
-        powerGroupList: action.payload.dataList,
+        powerGroupList: action.payload.data.dataList,
       };
     },
-    backtrack(state,action){
+    backtrack(state){
       return {
         ...state
       };
@@ -48,6 +67,18 @@ export default {
       return{
         ...state,
         provinceList: action.payload.data.dataList,
+      }
+    },
+    saveCity(state,action){
+      return{
+        ...state,
+        cityList: action.payload.data.dataList,
+      }
+    },
+    saveDistrict(state,action){
+      return{
+        ...state,
+        districtList: action.payload.data.dataList,
       }
     }
   },

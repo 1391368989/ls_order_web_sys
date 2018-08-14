@@ -1,6 +1,7 @@
 import { routerRedux } from 'dva/router';
 import { stringify } from 'qs';
 import { toLogin } from '../services/login';
+import { getImg } from '../services/createSecurityCode';
 import { setAuthority } from '../utils/authority';
 import { reloadAuthorized } from '../utils/Authorized';
 import { setUserStart} from  '../utils/userStart'
@@ -11,6 +12,7 @@ export default {
 
   state: {
     status: undefined,
+    codeImg:''
   },
 
   effects: {
@@ -45,7 +47,7 @@ export default {
       yield put({
         type: 'changeLoginStatus',
         payload: {
-          flag: -1,
+          flag: -2,
           msg:''
         },
       });
@@ -59,6 +61,13 @@ export default {
         })
       );
     },
+    *getImg({ payload },{call,put}){
+      const response = yield call(getImg ,payload);
+      yield put({
+        type: 'saveImg',
+        payload: response,
+      });
+    }
   },
 
   reducers: {
@@ -76,5 +85,10 @@ export default {
         type: payload.msg,
       };
     },
+    saveImg(_, { payload }){
+      return {
+        codeImg: payload,
+      };
+    }
   },
 };

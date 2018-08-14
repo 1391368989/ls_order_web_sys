@@ -1,5 +1,5 @@
 const path = require('path');
-const host = 'http://112.27.113.51:9040'
+const host = 'http://112.27.113.51:9040';
 export default {
   entry: 'src/index.js',
   extraBabelPlugins: [
@@ -16,6 +16,10 @@ export default {
       changeOrigin: true,
     },
     "/loginUser": {
+      target: host,
+      changeOrigin: true,
+    },
+    "/createSecurityCode": {
       target: host,
       changeOrigin: true,
     }

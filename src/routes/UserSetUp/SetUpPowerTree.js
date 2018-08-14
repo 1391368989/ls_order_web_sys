@@ -53,30 +53,6 @@ export default class SetUpPowerTree extends Component {
     checkedList: defaultCheckedList,
     indeterminate: true,
     checkAll: false,
-    powerTree:[
-      {
-        title:'仪表盘',
-        menus:[
-          {
-            title:'盈亏分析',
-          },
-          {
-            title:'仪表盘',
-          }
-        ]
-      },
-      {
-        title:'代理商管理',
-        menus:[
-          {
-            title:'盈亏分析',
-          },
-          {
-            title:'仪表盘',
-          }
-        ]
-      }
-    ]
   };
 
   onChange = (checkedList) => {

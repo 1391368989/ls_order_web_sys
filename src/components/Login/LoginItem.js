@@ -4,8 +4,9 @@ import { Form, Button, Row, Col,Icon } from 'antd';
 import omit from 'omit.js';
 import styles from './index.less';
 import map from './map';
-const FormItem = Form.Item;
+import {host} from '../../utils/utils';
 
+const FormItem = Form.Item;
 function generator({ defaultProps, defaultRules, type }) {
   return WrappedComponent => {
     return class BasicComponent extends Component {
@@ -18,7 +19,7 @@ function generator({ defaultProps, defaultRules, type }) {
         super(props);
         this.state = {
           count: 0,
-          iconCode:'http://112.27.113.51:9040/createSecurityCode?a=0',
+          iconCode:host+'/createSecurityCode?a=0',
           codeQuery:0,
         };
       }
@@ -49,18 +50,22 @@ function generator({ defaultProps, defaultRules, type }) {
           }
         }, 1000);
       };
-      toggleCode = () =>{
-        this.state.codeQuery = ++this.state.codeQuery;
+      onGetImgCode = () =>{
+        const { onGetImgCode } = this.props;
+        if (onGetImgCode) {
+          onGetImgCode();
+        }
+        /*this.state.codeQuery = ++this.state.codeQuery;
         this.setState({
-          iconCode:'http://112.27.113.51:9040/createSecurityCode?a='+this.state.codeQuery
-        })
+          iconCode:host+'/createSecurityCode?a='+this.state.codeQuery
+        })*/
       };
       render() {
         const { form } = this.context;
         const { getFieldDecorator } = form;
         const options = {};
         let otherProps = {};
-        const { onChange, defaultValue, rules, name, ...restProps } = this.props;
+        const { onChange, defaultValue, rules ,imgSrc, name, ...restProps } = this.props;
         const { count } = this.state;
         options.rules = rules || defaultRules;
         if (onChange) {
@@ -95,7 +100,7 @@ function generator({ defaultProps, defaultRules, type }) {
           );
         }
         if (type === 'Code') {
-          const inputProps = omit(otherProps, ['toggleCode']);
+          const inputProps = omit(otherProps, ['onGetImgCode']);
           return (
             <FormItem>
               <Row gutter={8}>
@@ -105,8 +110,8 @@ function generator({ defaultProps, defaultRules, type }) {
                   )}
                 </Col>
                 <Col span={14}>
-                  <img src={this.state.iconCode} height={40} onClick={this.toggleCode} style={{verticalAlign:'top'}}/>
-                  <span style={{fontSize:14,marginLeft:10,cursor:'pointer'}} onClick={this.toggleCode}>
+                  <img src={imgSrc} height={40} onClick={this.onGetImgCode} style={{verticalAlign:'top'}}/>
+                  <span style={{fontSize:14,marginLeft:10,cursor:'pointer'}} onClick={this.onGetImgCode}>
                     <Icon type="reload"/>
                        <a>点击刷新</a>
                   </span>

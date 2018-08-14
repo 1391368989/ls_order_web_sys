@@ -1,22 +1,41 @@
 import React, { PureComponent, Fragment } from 'react';
-import { Table, Button, Input, message, Popconfirm, Divider , Modal,Tree} from 'antd';
+import { Table, Button, Input, message, Popconfirm, Divider , Modal, Tree,Badge,Pagination} from 'antd';
+import MyTransfer from './MyTransfer'
+import CompanyBindTransfer from './CompanyBindTransfer'
+import { connect } from 'dva';
 import styles from './style.less';
 
 const TreeNode = Tree.TreeNode;
+const status= ['已禁用','活动中'];
+const statusMap = ['error', 'success'];
+@connect(({ rule ,loading }) => ({
+  rule,
+  loading: loading.models.rule,
+}))
 export default class TableForm extends PureComponent {
   index = 0;
-
   cacheOriginData = {};
-
+  state ={
+    autoExpandParent: true,
+    checkedKeys: null,
+    selectedKeys: ['1'],
+    loading: false,
+    roleId:null,
+    visibleMember:false,
+    visible:false,
+    visibleCompanyBind:false,
+    selectCompany:{
+      search_id_NIN:[],
+      page_rows:10,
+      page_page:1,
+    }
+  };
   constructor(props) {
     super(props);
-
     this.state = {
       data: props.value,
-      loading: false,
     };
   }
-
   componentWillReceiveProps(nextProps) {
     if ('value' in nextProps) {
       this.setState({
@@ -27,7 +46,7 @@ export default class TableForm extends PureComponent {
 
   getRowByKey(key, newData) {
     const { data } = this.state;
-    return (newData || data).filter(item => item.key === key)[0];
+    return (newData || data).filter(item => item.id === key)[0];
   }
 
   toggleEditable = (e, key) => {
@@ -35,6 +54,7 @@ export default class TableForm extends PureComponent {
     const { data } = this.state;
     const newData = data.map(item => ({ ...item }));
     const target = this.getRowByKey(key, newData);
+
     if (target) {
       // 进入编辑状态时保存原始数据
       if (!target.editable) {
@@ -44,12 +64,60 @@ export default class TableForm extends PureComponent {
       this.setState({ data: newData });
     }
   };
-
+  addRow = (e,id)=>{
+    e.persist();
+    const { dispatch } = this.props;
+    const target = this.getRowByKey(id) || {};
+    dispatch({
+      type: 'rule/insertRole',
+      payload:{
+        "parentId": 0,
+        "type": 0,
+        name:target.name
+      }
+    });
+    this.toggleEditable(e, id);
+  };
+  saveRow =(e, key) => {
+    e.persist();
+    this.setState({
+      loading: true,
+    });
+    setTimeout(() => {
+      if (this.clickedCancel) {
+        this.clickedCancel = false;
+        return;
+      }
+      const target = this.getRowByKey(key) || {};
+      if ( !target.name) {
+        message.error('请填写完整成员信息。');
+        e.target.focus();
+        this.setState({
+          loading: false,
+        });
+        return;
+      }
+      const { data } = this.state;
+      delete target.isNew;
+      this.toggleEditable(e, key);
+      this.setState({
+        loading: false,
+      });
+      const { dispatch } = this.props;
+      dispatch({
+        type: 'rule/changeRoleName',
+        payload:{
+          id:target.id,
+          name:target.name
+        }
+      });
+    }, 500);
+  }
   newMember = () => {
     const { data } = this.state;
     const newData = data.map(item => ({ ...item }));
     newData.push({
-      key: `新间权限组${this.index+1}`,
+      id: `新建权限组${this.index+1}`,
       workId: '',
       name: '',
       department: '',
@@ -59,15 +127,31 @@ export default class TableForm extends PureComponent {
     this.index += 1;
     this.setState({ data: newData });
   };
-
-  remove(key) {
+  disable (item){
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'rule/disable',
+      payload:{
+        id: item.id,
+        status: item.status? 0 : 1
+      }
+    });
+  };
+  remove(id) {
     const { data } = this.state;
-    const { onChange } = this.props;
-    const newData = data.filter(item => item.key !== key);
+    const newData = data.filter(item => item.id !== id);
     this.setState({ data: newData });
-    onChange(newData);
   }
-
+  changeRoleType =(item)=>{
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'rule/changeRoleType',
+      payload:{
+        id: item.id,
+        type: item.type? 0 : 1
+      }
+    });
+  };
   handleKeyPress(e, key) {
     if (e.key === 'Enter') {
       this.saveRow(e, key);
@@ -84,35 +168,6 @@ export default class TableForm extends PureComponent {
     }
   }
 
-  saveRow(e, key) {
-    e.persist();
-    this.setState({
-      loading: true,
-    });
-    setTimeout(() => {
-      if (this.clickedCancel) {
-        this.clickedCancel = false;
-        return;
-      }
-      const target = this.getRowByKey(key) || {};
-      if (!target.workId || !target.name || !target.department) {
-        message.error('请填写完整成员信息。');
-        e.target.focus();
-        this.setState({
-          loading: false,
-        });
-        return;
-      }
-      const { data } = this.state;
-      const { onChange } = this.props;
-      delete target.isNew;
-      this.toggleEditable(e, key);
-      onChange(data);
-      this.setState({
-        loading: false,
-      });
-    }, 500);
-  }
 
   cancel(e, key) {
     this.clickedCancel = true;
@@ -129,144 +184,151 @@ export default class TableForm extends PureComponent {
     this.clickedCancel = false;
   }
   renderPowerMenu(){
-    const treeData = [{
-      title: '0-0',
-      key: '0-0',
-      children: [
-        {
-          title: '0-0-0',
-          key: '0-0-0',
-          children: [
-            { title: '0-0-0-0', key: '0-0-0-0' },
-            { title: '0-0-0-1', key: '0-0-0-1' },
-            { title: '0-0-0-2', key: '0-0-0-2' },
-          ],
-        },
-        {
-          title: '0-0-1',
-          key: '0-0-1',
-          children: [
-            { title: '0-0-1-0', key: '0-0-1-0' },
-            { title: '0-0-1-1', key: '0-0-1-1' },
-            { title: '0-0-1-2', key: '0-0-1-2' },
-          ],
-        },
-        {
-          title: '0-0-2',
-          key: '0-0-2',
-        }],
-    }, {
-      title: '0-1',
-      key: '0-1',
-      children: [
-        { title: '0-1-0-0', key: '0-1-0-0' },
-        { title: '0-1-0-1', key: '0-1-0-1' },
-        { title: '0-1-0-2', key: '0-1-0-2' },
-      ],
-    }, {
-      title: '0-2',
-      key: '0-2',
-    },
-      {
-        title: '0-3',
-        key: '0-3',
-        children: [
-          { title: '0-3-0-0', key: '0-3-0-0' },
-          { title: '0-3-0-1', key: '0-3-0-1' },
-          { title: '0-3-0-2', key: '0-3-0-2' },
-        ],
-      },
-      {
-        title: '0-4',
-        key: '0-4',
-        children: [
-          { title: '0-4-0-0', key: '0-4-0-0' },
-          { title: '0-4-0-1', key: '0-4-0-1' },
-          { title: '0-4-0-2', key: '0-4-0-2' },
-        ],
-      },
-    ];
+    const { rule } = this.props;
+    const { treeList , checkedKeys} = rule;
+    this.state.checkedKeys = checkedKeys;
     return (
       <Tree
         checkable
         onExpand={this.onExpand}
         expandedKeys={this.state.expandedKeys}
         autoExpandParent={this.state.autoExpandParent}
+        defaultExpandAll={true}
         onCheck={this.onCheck}
         checkedKeys={this.state.checkedKeys}
         onSelect={this.onSelect}
         selectedKeys={this.state.selectedKeys}
       >
-        {this.renderTreeNodes(treeData)}
+        {this.renderTreeNodes(treeList)}
       </Tree>
     );
   };
-
-  setUpPower(){
-    this.showModal()
-  };
   onExpand = (expandedKeys) => {
-    console.log('onExpand', expandedKeys);
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
     // or, you can remove all expanded children keys.
     this.setState({
       expandedKeys,
       autoExpandParent: false,
     });
-  }
+  };
 
   onCheck = (checkedKeys) => {
-    console.log('onCheck', checkedKeys);
-    this.setState({ checkedKeys });
-  }
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'rule/setCheckedKeys',
+      payload:{
+        checkedKeys:checkedKeys
+      }
+    });
+  };
 
   onSelect = (selectedKeys, info) => {
     console.log('onSelect', info);
     this.setState({ selectedKeys });
-  }
-
-
-
-  showModal = () => {
+  };
+  showModal = (id) => {
     this.setState({
       visible: true,
+      roleId:id
     });
-    console.log(this.state.visible)
-  }
-
-  handleOk = (e) => {
-    console.log(e);
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'rule/fetchTree',
+      payload:{
+        roleId:id
+      }
+    });
+  };
+  showModalMember = (id) =>{
+    this.setState({
+      visibleMember: true,
+      roleId:id
+    });
+    //获取所有成员
+  };
+  handleOk = () => {
+    const { dispatch } = this.props;
+    if(this.state.checkedKeys.length<1){
+      message.error('所属权限组不能没有一个权限');
+      return;
+    }
+    dispatch({
+      type: 'rule/insertRoleMenuBind',
+      payload:{
+        roleId:this.state.roleId,
+        menuIds:this.state.checkedKeys
+      }
+    });
     this.setState({
       visible: false,
     });
-  }
+  };
 
   handleCancel = (e) => {
-    console.log(e);
     this.setState({
       visible: false,
     });
-  }
+  };
+
+  handleMemberOk = () => {
+    this.setState({
+      visibleMember: false,
+    });
+  };
+
+  handleMemberCancel = (e) => {
+    this.setState({
+      visibleMember: false,
+    });
+  };
+  showModalCompanyBind =(id) =>{
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'rule/initCompanyModal',
+      payload:{
+        selectCompany:this.state.selectCompany,
+        selectRoleBindCompany:{
+          "roleId": id
+        }
+      }
+    });
+    this.setState({
+      visibleCompanyBind: true,
+      roleId:id
+    });
+  };
+
+  handleCompanyBindOk = () => {
+    this.setState({
+      visibleCompanyBind: false,
+    });
+  };
+  handleCompanyBindCancel = (e) => {
+    this.setState({
+      visibleCompanyBind: false,
+    });
+  };
   renderTreeNodes = (data) => {
     return data.map((item) => {
-      if (item.children) {
+      if (item.menuVOS === null) item.menuVOS = [];
+      if (item.menuVOS) {
         return (
-          <TreeNode title={item.title} key={item.key} dataRef={item}>
-            {this.renderTreeNodes(item.children)}
+          <TreeNode title={item.name} key={item.id} dataRef={item}>
+            {this.renderTreeNodes(item.menuVOS)}
           </TreeNode>
         );
       }
       return <TreeNode {...item} />;
     });
-  }
+  };
   render() {
     const columns = [
       {
         title: '序号',
-        dataIndex: 'no',
-        key: 'no',
+        dataIndex: 'id',
+        key: 'id',
         render: (text, record) => {
-          return record.key;
+          return record.id;
         },
       },
       {
@@ -275,14 +337,13 @@ export default class TableForm extends PureComponent {
         key: 'name',
         width:'18%',
         render: (text, record) => {
-          console.log(record)
           if (record.editable) {
             return (
               <Input
                 value={text}
                 autoFocus
-                onChange={e => this.handleFieldChange(e, 'name', record.key)}
-                onKeyPress={e => this.handleKeyPress(e, record.key)}
+                onChange={e => this.handleFieldChange(e, 'name', record.id)}
+                onKeyPress={e => this.handleKeyPress(e, record.id)}
                 placeholder="权限组名"
               />
             );
@@ -292,8 +353,21 @@ export default class TableForm extends PureComponent {
       },
       {
         title: '组状态',
-        dataIndex: 'start',
-        key: 'start',
+        dataIndex: 'status',
+        filters: [
+          {
+            text: status[0],
+            value: 0,
+          },
+          {
+            text: status[1],
+            value: 1,
+          }
+        ],
+        onFilter: (value, record) => record.status.toString() === value,
+        render(val) {
+          return <Badge status={statusMap[val]} text={status[val]} />;
+        },
       },
       {
         title: '操作',
@@ -307,39 +381,56 @@ export default class TableForm extends PureComponent {
             if (record.isNew) {
               return (
                 <span>
-                  <a onClick={e => this.saveRow(e, record.key)}>添加</a>
+                  <a onClick={e => this.addRow(e, record.id)}>添加</a>
                   <Divider type="vertical" />
-                  <Popconfirm title="是否要禁用当前权限组？" onConfirm={() => this.remove(record.key)}>
-                    <a>禁用</a>
+                  <Popconfirm title="是否要删除当前权限组？" onConfirm={() => this.remove(record.id)}>
+                    <a>删除</a>
                   </Popconfirm>
                 </span>
               );
             }
             return (
               <span>
-                <a onClick={e => this.saveRow(e, record.key)}>保存</a>
+                <a onClick={e => this.saveRow(e, record.id)}>保存</a>
+                  <Divider type="vertical" />
+                 <a onClick={e => this.cancel(e, record.id)}>取消</a>
                 <Divider type="vertical" />
-                <a onClick={e => this.cancel(e, record.key)}>取消</a>
+                  <Popconfirm title="是否要禁用当前权限组？" onConfirm={() => this.remove(record.key)}>
+                    <a>禁用</a>
+                  </Popconfirm>
               </span>
             );
           }
           return (
             <span>
-              <a onClick={e => this.toggleEditable(e, record.key)}>编辑</a>
+              <a onClick={e => this.toggleEditable(e, record.id)}>编辑</a>
               <Divider type="vertical" />
-              <Popconfirm title="是否要禁用当前权限组？" onConfirm={() => this.remove(record.key)}>
-                <a>禁用</a>
+              <Popconfirm title={`是否要${record.status?'禁用':'启用'}当前权限组？`} onConfirm={() => this.disable(record)}>
+                <a>{record.status === 1&&'禁用'}</a>
+                <a>{record.status === 0&&'启用'}</a>
               </Popconfirm>
               <Divider type="vertical" />
-               <a onClick={e => this.setUpPower(e, record.key)}>设置</a>
+               <a onClick={e => this.showModal(record.id)}>设置权限</a>
+               <Divider type="vertical" />
+               <a onClick={e => this.showModalMember(record.id)}>管理成员</a>
+               <Divider type="vertical" />
+               <Popconfirm title={`是否${record.type?'禁用':'启用'}绑定商家？`} onConfirm={() => this.changeRoleType(record)}>
+                  <a>{record.type === 1&&'禁用绑定商家'}</a>
+                  <a>{record.type === 0&&'启用绑定商家'}</a>
+               </Popconfirm>
+              {record.type === 1&&
+                <span>
+                  <Divider type="vertical" />
+                  <a onClick={e => this.showModalCompanyBind(record.id)}>绑定商家</a>
+                </span>
+              }
             </span>
           );
         },
       },
     ];
-
-    const { loading, data } = this.state;
-
+    const {  data } = this.state;
+    const { loading,rule} = this.props;
     return (
       <Fragment>
         <Table
@@ -347,6 +438,7 @@ export default class TableForm extends PureComponent {
           columns={columns}
           dataSource={data}
           pagination={false}
+          rowKey={record => record.id}
           rowClassName={record => {
             return record.editable ? styles.editable : '';
           }}
@@ -364,8 +456,27 @@ export default class TableForm extends PureComponent {
           visible={this.state.visible}
           onOk={this.handleOk}
           onCancel={this.handleCancel}
+          destroyOnClose ={true}
         >
-          {this.renderPowerMenu()}
+          {this.state.visible&&this.renderPowerMenu()}
+        </Modal>
+        <Modal
+          title="成员设置"
+          visible={this.state.visibleMember}
+          onOk={this.handleMemberOk}
+          onCancel={this.handleMemberCancel}
+          destroyOnClose ={true}
+        >
+          {this.state.visibleMember&&<MyTransfer/>}
+        </Modal>
+        <Modal
+          title="商家设置"
+          visible={this.state.visibleCompanyBind}
+          onOk={this.handleCompanyBindOk}
+          onCancel={this.handleCompanyBindCancel}
+          destroyOnClose ={true}
+        >
+          {this.state.visibleCompanyBind&&<CompanyBindTransfer/>}
         </Modal>
       </Fragment>
     );

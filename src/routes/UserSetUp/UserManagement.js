@@ -24,13 +24,22 @@ import {
 import styles from './UserManagement.less';
 
 @Form.create()
-@connect(({ workplace, loading }) => ({
-  workplace,
-  loading: loading.models.workplace,
+@connect(({ rule, loading }) => ({
+  rule,
+  loading: loading.models.rule,
 }))
 export default class UserManagement extends Component {
+
+  componentDidMount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'rule/selectuser',
+    });
+  }
+
   render() {
-    const { form } = this.props;
+    const { form, rule } = this.props;
+    const {userList} = rule;
     const { getFieldDecorator} = form;
     const tableData = [
       {
@@ -56,7 +65,7 @@ export default class UserManagement extends Component {
       <PageHeaderLayout title="成员管理">
         <Card bordered={false}>
           {getFieldDecorator('members', {
-            initialValue: tableData,
+            initialValue: userList,
           })(<TableForm />)}
         </Card>
       </PageHeaderLayout>

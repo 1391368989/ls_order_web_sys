@@ -204,7 +204,7 @@ export default class AgentInfo extends Component {
       }
     ];
     return (
-      <PageHeaderLayout title="代理商信息">
+      <PageHeaderLayout title="代理商/网点信息">
         <Card>
           <div>
             <div className={styles.tableListForm}>{this.renderSimpleForm()}</div>

@@ -136,7 +136,7 @@ export const getRouterData = app => {
       component: dynamicWrapper(app, [], () => import('../routes/UserSetUp/UserManagement')),
     },
     '/user-set-up/power-management': {
-      component: dynamicWrapper(app, [], () => import('../routes/UserSetUp/PowerManagement')),
+      component: dynamicWrapper(app, ['rule'], () => import('../routes/UserSetUp/PowerManagement')),
     },
   /*  '/user-set-up/power-tree': {
       component: dynamicWrapper(app, [], () => import('../routes/UserSetUp/SetUpPowerTree')),

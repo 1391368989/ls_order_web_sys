@@ -171,8 +171,8 @@ const proxy = {
 
   'POST /api/agentInfo': getNotices,
   'GET /api/queryPowerGroup':{dataList:[
-    {name:'代理商',value:'agent'},
-    {name:'网点',value:'dot'},
+    {name:'代理商',value:'0'},
+    {name:'网点',value:'1'},
     ]
   },
   'POST /api/addPowerGroupMember':{status:true},

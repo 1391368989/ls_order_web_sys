@@ -17,26 +17,26 @@ export default class LoginPage extends Component {
   state = {
     type: 'account',
     autoLogin: true,
+    query:0,
   };
-
+  componentDidMount() {
+    this.getImgCode();
+  }
   onTabChange = type => {
     this.setState({ type });
   };
 
   handleSubmit = (err, values) => {
-    const { type } = this.state;
     const { dispatch } = this.props;
     if (!err) {
       dispatch({
         type: 'login/login',
         payload: {
-          ...values,
-          type,
+          ...values
         },
       });
     }
   };
-
   changeAutoLogin = e => {
     this.setState({
       autoLogin: e.target.checked,
@@ -56,20 +56,28 @@ export default class LoginPage extends Component {
       )
     });
   };
+  getImgCode =()=>{
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'login/getImg',
+      payload:{
+        a:++this.state.query
+      }
+    });
+  };
   render() {
     const { login, submitting } = this.props;
+    const {codeImg} = login;
     const { type, autoLogin } = this.state;
-    console.log(login)
     return (
       <div className={styles.main}>
         <Login defaultActiveKey={type} onTabChange={this.onTabChange} onSubmit={this.handleSubmit}>
-
           {login.status === -1 &&
           !submitting &&
           this.renderMessage(login.type)}
           <UserName name="userPhone" placeholder="请输入用户名/手机号" />
           <Password name="password" placeholder="请输入密码" />
-          <Code name="code" placeholder="请输入验证码"/>
+          <Code name="securityCode" placeholder="请输入验证码" onGetImgCode={() => this.getImgCode()} imgSrc={codeImg}/>
       {/*    <Tab key="mobile" tab="手机号登录">
             {login.status === 'error' &&
               login.type === 'mobile' &&

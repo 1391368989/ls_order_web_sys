@@ -23,56 +23,43 @@ import {
 } from 'antd';
 
 import styles from './style.less';
-const TreeNode = Tree.TreeNode;
-const status= ['活动中','已禁用'];
-const statusMap = ['default', 'processing'];
+
 @Form.create()
-@connect(({ workplace, loading }) => ({
-  workplace,
-  loading: loading.models.workplace,
+@connect(({ rule, loading }) => ({
+  rule,
+  loading: loading.models.rule,
 }))
 
 export default class PowerManagement extends Component {
   state={
-    visible:false,
-    expandedKeys: ['0-0-0', '0-0-1'],
-    autoExpandParent: true,
-    checkedKeys: ['0-0-0'],
-    selectedKeys: [],
+    query:{
+      page_row:15,
+      page_page:1,
+      search_parentId_EQ:0
+    }
+  };
+
+  componentDidMount() {
+    const { dispatch } = this.props;
+    const query = this.state.query;
+    dispatch({
+      type: 'rule/fetch',
+      payload:query
+    });
   }
 
-
-
   render() {
-    const { form } = this.props;
+    const { form ,rule} = this.props;
     const { getFieldDecorator} = form;
-    const tableData = [
-      {
-        key: '1',
-        workId: '00001',
-        name: '超级管理员',
-        start: '活动中',
-      },
-      {
-        key: '2',
-        workId: '00002',
-        name: '管理员',
-        start: '已禁用',
-      },
-      {
-        key: '3',
-        workId: '00003',
-        name: '代理商',
-        start: '活动中',
-      },
-    ];
+    const { data } = rule;
+    const tableData = data.dataList;
     return (
-      <PageHeaderLayout title="权限组设置">
+      <PageHeaderLayout title="权限组设置" >
         <Card>
           <div>
             {getFieldDecorator('members', {
               initialValue: tableData,
-            })(<PowerTableForm />)}
+            })(<PowerTableForm/>)}
           </div>
         </Card>
       </PageHeaderLayout>

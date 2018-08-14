@@ -21,20 +21,47 @@ const FormItem = Form.Item;
 export default class AddMember extends Component {
   state = {
     value: 1,
-    modalPowerGroup:''
+    modalPowerGroup:'agent',
+    city:'请选择'
   };
 
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
       type: 'addmember/fetchTags',
+      payload:{
+        type: "companytype"
+      }
     });
   }
   handleChange =(value)=>{
     this.setState({
-        modalPowerGroup:value
+        modalPowerGroup:'agent'
       }
     )
+  };
+
+  handleChangeProvince =(value) =>{
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'addmember/getCity',
+      payload:{
+        id:value
+      }
+    });
+    this.setState({
+        city:null,
+      }
+    )
+  };
+  handleChangeCity =(value)=>{
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'addmember/getDistrict',
+      payload:{
+        id:value
+      }
+    });
   };
   handleSubmit =e=>{
     e.preventDefault();
@@ -46,10 +73,13 @@ export default class AddMember extends Component {
         payload: values,
       });
     });
-  }
+  };
+  handleReset = () => {
+    this.props.form.resetFields();
+  };
   render(){
     const { form ,addmember,loading} = this.props;
-    const { powerGroupList ,provinceList} = addmember;
+    const { powerGroupList ,provinceList ,cityList, districtList} = addmember;
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
@@ -78,22 +108,8 @@ export default class AddMember extends Component {
         <Form onSubmit={this.handleSubmit} layout="inline">
           <Row>
             <Col offset={2} md={12}>
-              <FormItem label='权限组' {...formItemLayout}>
-                {getFieldDecorator('powerGroup',{
-                  rules: [{
-                    required: true,
-                    message: '请选择权限组！',
-                  }],
-                })(
-                  <Select placeholder="请选择权限组" onChange={this.handleChange}>
-                    {powerGroupList.map((item,index) =>
-                      <Option value={item.value} key={index}>{item.name}</Option>
-                    )}
-                  </Select>
-                )}
-              </FormItem>
-              <FormItem label='账户名' {...formItemLayout}>
-                {getFieldDecorator('userName',{
+              <FormItem label='代理商/网点名' {...formItemLayout}>
+                {getFieldDecorator('name',{
                   rules: [{
                     required: true,
                     message: '请输入账户名!',
@@ -109,7 +125,7 @@ export default class AddMember extends Component {
                 })(<Input placeholder="请输入初始密码" />)}
               </FormItem>
               <FormItem label='负责人' {...formItemLayout}>
-                {getFieldDecorator('principal',{
+                {getFieldDecorator('linkman',{
                   rules: [{
                     required: true,
                     message: '请输入负责人姓名!',
@@ -117,23 +133,23 @@ export default class AddMember extends Component {
                 })(<Input placeholder="请输入负责人姓名" />)}
               </FormItem>
               <FormItem label='手机号' {...formItemLayout}>
-                {getFieldDecorator('phone',{
+                {getFieldDecorator('linkphone',{
                   rules: [{
                     required: true,
                     message: '请输入手机号!',
                   }],
                 })(<Input placeholder="请输入手机号" />)}
               </FormItem>
-              {this.state.modalPowerGroup=='agent'&&
+              {this.state.modalPowerGroup === 'agent'&&
               <div>
                 <FormItem label='所属省份' {...formItemLayout}>
                   {getFieldDecorator('province',{
                     rules: [{
                       required: true,
-                      message: '请输入所属城市!',
+                      message: '请选择所属省/直辖市!',
                     }],
                   })(
-                    <Select placeholder="请选择所属省/直辖市">
+                    <Select placeholder="请选择所属省/直辖市" onChange={this.handleChangeProvince}>
                       {provinceList.map((item,index) =>
                         <Option value={item.id} key={index}>{item.name}</Option>
                       )}
@@ -147,8 +163,22 @@ export default class AddMember extends Component {
                       message: '请输入所属城市!',
                     }],
                   })(
-                    <Select placeholder="请输入所属城市">
-                      {provinceList.map((item,index) =>
+                    <Select placeholder="请选择所属城市" onChange={this.handleChangeCity}>
+                      {cityList.map((item,index) =>
+                        <Option value={item.id} key={index}>{item.name}</Option>
+                      )}
+                    </Select>
+                  )}
+                </FormItem>
+                <FormItem label='所属区/县' {...formItemLayout}>
+                  {getFieldDecorator('cityId',{
+                    rules: [{
+                      required: true,
+                      message: '请选择所属区县!',
+                    }],
+                  })(
+                    <Select placeholder="请选择所属区县">
+                      {districtList.map((item,index) =>
                         <Option value={item.id} key={index}>{item.name}</Option>
                       )}
                     </Select>
@@ -162,23 +192,45 @@ export default class AddMember extends Component {
                     }],
                   })(<Input placeholder="请输入详细地址" />)}
                 </FormItem>
-                <FormItem label='开户行' {...formItemLayout}>
-                  {getFieldDecorator('openingBank',{
+                <FormItem label='银行' {...formItemLayout}>
+                  {getFieldDecorator('bankName',{
                     rules: [{
                       required: true,
-                      message: '请输入开户行!',
+                      message: '请输入银行!',
                     }],
-                  })(<Input placeholder="请输入开户行" />)}
+                  })(<Input placeholder="请输入银行" />)}
                 </FormItem>
                 <FormItem label='银行卡号' {...formItemLayout}>
-                  {getFieldDecorator('openingBank',{
+                  {getFieldDecorator('bankCode',{
                     rules: [{
                       required: true,
                       message: '请输入银行卡号!',
                     }],
                   })(<Input placeholder="请输入银行卡号" />)}
                 </FormItem>
-                <FormItem label='所属运营组' {...formItemLayout}>
+                <FormItem label='开户行' {...formItemLayout}>
+                  {getFieldDecorator('bankAddress',{
+                    rules: [{
+                      required: true,
+                      message: '请输入开户行!',
+                    }],
+                  })(<Input placeholder="请输入开户行" />)}
+                </FormItem>
+                <FormItem label='商家类型' {...formItemLayout}>
+                  {getFieldDecorator('type',{
+                    rules: [{
+                      required: true,
+                      message: '请选择商家类型!',
+                    }],
+                  })(
+                    <Select placeholder="请选择商家类型">
+                      {powerGroupList.map((item,index) =>
+                        <Option value={item.code} key={index}>{item.label}</Option>
+                      )}
+                    </Select>
+                  )}
+                </FormItem>
+            {/*    <FormItem label='所属运营组' {...formItemLayout}>
                   {getFieldDecorator('belongOperationsGroup',{
                     rules: [{
                       required: true,
@@ -191,11 +243,12 @@ export default class AddMember extends Component {
                       )}
                     </Select>
                   )}
-                </FormItem>
+                </FormItem>*/}
               </div>
               }
               <FormItem {...tailFormItemLayout}>
                 <Button type="primary" htmlType="submit" loading={loading} >提交</Button>
+                <Button style={{ marginLeft: 20 }} onClick={this.handleReset}>重置</Button>
               </FormItem>
             </Col>
           </Row>

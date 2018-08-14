@@ -1,21 +1,22 @@
 import React, { PureComponent, Fragment } from 'react';
 import { Table, Button, Input, message, Popconfirm, Divider } from 'antd';
+import { connect } from 'dva';
 import styles from './style.less';
 
+@connect(({ rule ,loading }) => ({
+  rule,
+  loading: loading.models.rule,
+}))
 export default class TableForm extends PureComponent {
   index = 0;
-
   cacheOriginData = {};
-
   constructor(props) {
     super(props);
-
     this.state = {
       data: props.value,
       loading: false,
     };
   }
-
   componentWillReceiveProps(nextProps) {
     if ('value' in nextProps) {
       this.setState({
@@ -131,9 +132,9 @@ export default class TableForm extends PureComponent {
   render() {
     const columns = [
       {
-        title: '账户',
-        dataIndex: 'name',
-        key: 'name',
+        title: '手机号',
+        dataIndex: 'userPhone',
+        key: 'userPhone',
         width:'18%',
         render: (text, record) => {
           if (record.editable) {
@@ -141,9 +142,9 @@ export default class TableForm extends PureComponent {
               <Input
                 value={text}
                 autoFocus
-                onChange={e => this.handleFieldChange(e, 'name', record.key)}
+                onChange={e => this.handleFieldChange(e, 'userPhone', record.key)}
                 onKeyPress={e => this.handleKeyPress(e, record.key)}
-                placeholder="账户"
+                placeholder="请输入手机号！"
               />
             );
           }
@@ -151,7 +152,7 @@ export default class TableForm extends PureComponent {
         },
       },
       {
-        title: '手机号码',
+        title: '密码',
         dataIndex: 'tel',
         key: 'tel',
         width:'18%',
@@ -161,9 +162,9 @@ export default class TableForm extends PureComponent {
               <Input
                 value={text}
                 autoFocus
-                onChange={e => this.handleFieldChange(e, 'name', record.key)}
+                onChange={e => this.handleFieldChange(e, 'passWord', record.key)}
                 onKeyPress={e => this.handleKeyPress(e, record.key)}
-                placeholder="手机号码"
+                placeholder="请输入密码"
               />
             );
           }
@@ -191,8 +192,8 @@ export default class TableForm extends PureComponent {
       },
       {
         title: '注册时间',
-        dataIndex: 'registerTime',
-        key: 'registerTime',
+        dataIndex: 'createDateLabel',
+        key: 'createDateLabel',
       },
       {
         title: '上次登录时间',
@@ -246,14 +247,13 @@ export default class TableForm extends PureComponent {
     ];
 
     const { loading, data } = this.state;
-
     return (
       <Fragment>
         <Table
           loading={loading}
           columns={columns}
           dataSource={data}
-          pagination={false}
+          pagination={true}
           rowClassName={record => {
             return record.editable ? styles.editable : '';
           }}
