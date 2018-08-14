@@ -33,13 +33,17 @@ export default class UserManagement extends Component {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'rule/selectuser',
+      type: 'rule/pagingUserList',
+      payload:{
+        page_rows:10,
+        page_page:1,
+      }
     });
   }
 
   render() {
     const { form, rule } = this.props;
-    const {userList} = rule;
+    const {userData} = rule;
     const { getFieldDecorator} = form;
     const tableData = [
       {
@@ -65,7 +69,7 @@ export default class UserManagement extends Component {
       <PageHeaderLayout title="成员管理">
         <Card bordered={false}>
           {getFieldDecorator('members', {
-            initialValue: userList,
+            initialValue: userData.dataList,
           })(<TableForm />)}
         </Card>
       </PageHeaderLayout>

@@ -1,7 +1,7 @@
 import React, { PureComponent, Fragment } from 'react';
 import { Table, Button, Input, message, Popconfirm, Divider , Modal, Tree,Badge,Pagination} from 'antd';
-import MyTransfer from './MyTransfer'
-import CompanyBindTransfer from './CompanyBindTransfer'
+import UserBind from './UserBind'
+import CompanyBind from './CompanyBind'
 import { connect } from 'dva';
 import styles from './style.less';
 
@@ -27,7 +27,7 @@ export default class TableForm extends PureComponent {
     selectCompany:{
       search_id_NIN:[],
       page_rows:10,
-      page_page:1,
+      page_page:2,
     }
   };
   constructor(props) {
@@ -245,6 +245,20 @@ export default class TableForm extends PureComponent {
       roleId:id
     });
     //获取所有成员
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'rule/pagingUserList',
+      payload:{
+        page_rows:10,
+        page_page:1,
+      }
+    });
+    dispatch({
+      type: 'rule/selectAllRoleUserBind',
+      payload:{
+        roleId:id
+      }
+    });
   };
   handleOk = () => {
     const { dispatch } = this.props;
@@ -274,6 +288,16 @@ export default class TableForm extends PureComponent {
     this.setState({
       visibleMember: false,
     });
+    const { dispatch ,rule } = this.props;
+    const {userBindList} = rule;
+    console.log(userBindList);
+    dispatch({
+      type: 'rule/fetchBindUser',
+      payload:{
+        "userIds": userBindList ,
+        "roleId": this.state.roleId
+      }
+    });
   };
 
   handleMemberCancel = (e) => {
@@ -286,7 +310,11 @@ export default class TableForm extends PureComponent {
     dispatch({
       type: 'rule/initCompanyModal',
       payload:{
-        selectCompany:this.state.selectCompany,
+        selectCompany:{
+          page_rows:10,
+          page_page:1,
+          search_id_NIN:[]
+        },
         selectRoleBindCompany:{
           "roleId": id
         }
@@ -301,6 +329,15 @@ export default class TableForm extends PureComponent {
   handleCompanyBindOk = () => {
     this.setState({
       visibleCompanyBind: false,
+    });
+    const { dispatch ,rule } = this.props;
+    const {bindCompanyList} = rule;
+    dispatch({
+      type: 'rule/fetchBindCompany',
+      payload:{
+        "companyIds": bindCompanyList ,
+        "roleId": this.state.roleId
+      }
     });
   };
   handleCompanyBindCancel = (e) => {
@@ -466,8 +503,9 @@ export default class TableForm extends PureComponent {
           onOk={this.handleMemberOk}
           onCancel={this.handleMemberCancel}
           destroyOnClose ={true}
+          width={'800px'}
         >
-          {this.state.visibleMember&&<MyTransfer/>}
+          {this.state.visibleMember&&<UserBind/>}
         </Modal>
         <Modal
           title="商家设置"
@@ -475,8 +513,9 @@ export default class TableForm extends PureComponent {
           onOk={this.handleCompanyBindOk}
           onCancel={this.handleCompanyBindCancel}
           destroyOnClose ={true}
+          width={'800px'}
         >
-          {this.state.visibleCompanyBind&&<CompanyBindTransfer/>}
+          {this.state.visibleCompanyBind&&<CompanyBind roleId={this.state.roleId}/>}
         </Modal>
       </Fragment>
     );

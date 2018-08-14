@@ -1,21 +1,30 @@
-import { queryRule, removeRule, selectTree,getRole ,toDisable ,insertRoleMenuBind,changeRoleName,
+import { queryRule, companyBind, selectTree,getRole ,toDisable ,insertRoleMenuBind,changeRoleName,
   insertRole,
   selectuser,
   changeRoleType,
   selectCompany,
   selectRoleBindCompany,
+  selectAllRoleUserBind,
+  insertRoleUserBind,
+  deleteRoleUserBind,
+  deleteRoleCompanyBind,
 } from '../services/order';
 import { message } from 'antd';
 export default {
   namespace: 'rule',
-
   state: {
     data: {
       dataList: [],
       pagination: {},
     },
     treeList:[],
-    userList:[],
+    userBindList:[],
+    userData:{
+      dataList:[],
+      totalRows: 20,
+      page:1,
+      rows:10,
+    },
     bindCompanyList:[],
     companySelectedKeys:[],
     companyData:{
@@ -77,13 +86,13 @@ export default {
         payload: response,
       });
     },
-    *selectuser(_,{call, put}){
+/*    *selectuser(_,{call, put}){
       const response = yield call(selectuser);
       yield put({
         type: 'saveUserList',
         payload: response,
       });
-    },
+    },*/
     *changeRoleType({ payload }, { call, put }){
       yield call(changeRoleType, payload);
       const response = yield call(queryRule, payload);
@@ -129,6 +138,60 @@ export default {
         },
       });
     },
+    *fetchBindCompany({ payload }, { call, put }){
+      const response = yield call(companyBind, payload);
+      if(response.flag === 0){
+        message.success('修改成功');
+      }else{
+        message.success(response.msg);
+      }
+    },
+    *deleteRoleCompanyBind({ payload }, { call, put }){
+      const response = yield call(deleteRoleCompanyBind, payload);
+      if(response.flag === 0){
+        message.success('修改成功');
+      }else{
+        message.success(response.msg);
+      }
+    },
+    *pagingUserList({ payload }, { call, put }){
+      const response = yield call(selectuser,payload);
+      yield put({
+        type: 'saveUserList',
+        payload: {
+          page:response.data.page,
+        },
+      });
+    },
+    *selectAllRoleUserBind({ payload }, { call, put }){
+      const res = yield call(selectAllRoleUserBind,payload);
+      if(res.data === null){
+        res.data = {
+          dataList:[]
+        }
+      }else if(res.data.dataList.length>0){
+        let arr = res.data.dataList;
+        let newArr = [];
+        for (let i in arr){
+          newArr.push(arr[i].key);
+        }
+        res.data.dataList = newArr;
+      }
+      yield put({
+        type: 'saveUserBindList',
+        payload: {
+          userBindList:res.data.dataList,
+        },
+      });
+    },
+    *fetchBindUser({ payload }, { call, put }){
+      const response = yield call(insertRoleUserBind, payload);
+      if(response.flag === 0){
+        message.success('修改成功');
+      }else{
+        message.success(response.msg);
+      }
+    },
    /* *add({ payload, callback }, { call, put }) {
       const response = yield call(addRule, payload);
       yield put({
@@ -169,7 +232,7 @@ export default {
     saveUserList(state,action){
       return {
         ...state,
-        userList: action.payload.data.page.dataList,
+        userData: action.payload.page,
       };
     },
     saveCompanyList(state,action){
@@ -188,10 +251,20 @@ export default {
     setBindCompanyList(state,action){
       return {
         ...state,
-        companyData: {
-          dataList:action.payload.nextTargetKeys
-        },
+        bindCompanyList: action.payload.bindCompanyList
       };
-    }
+    },
+    setBindUserList(state,action){
+      return {
+        ...state,
+        userBindList: action.payload.userBindList
+      };
+    },
+    saveUserBindList(state,action){
+      return {
+        ...state,
+        userBindList: action.payload.userBindList
+      };
+    },
   },
 };

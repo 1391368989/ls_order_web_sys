@@ -149,14 +149,14 @@ export async function insertCompany(query) {
 * /order/user/selectuser
  用户列表信息查询
 * */
-export async function selectuser() {
+export async function selectuser(query) {
   return request('/order/user/selectuser', {
-    method: 'POST'
+    method: 'POST',
+    body:query
   });
 }
 /*
-* /order/role/insertRoleUserBind
- 权限与用户绑定
+* 权限与用户绑定
 * */
 export async function insertRoleUserBind(query) {
   return request('/order/role/insertRoleUserBind', {
@@ -164,6 +164,17 @@ export async function insertRoleUserBind(query) {
     body:query
   });
 }
+
+/*
+* 删除用户与权限绑定
+* */
+export async function deleteRoleUserBind(query) {
+  return request('/order/role/deleteRoleUserBind', {
+    method: 'POST',
+    body:query
+  });
+}
+
 /*
  *
  /order/role/selectRoleBindCompany
@@ -185,6 +196,16 @@ export async function companyBind(query) {
   });
 }
 /*
+* 删除公司与权限绑定
+* */
+export async function deleteRoleCompanyBind(query) {
+  return request('/order/role/deleteRoleCompanyBind', {
+    method: 'POST',
+    body:query
+  });
+}
+
+/*
  *改变权限类型
 * */
 export async function changeRoleType(query) {
@@ -201,6 +222,15 @@ export async function changeRoleType(query) {
 
 export async function selectCompany(query) {
   return request('/order/company/selectCompany', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+* 查询权限绑定的用户
+* */
+export async function selectAllRoleUserBind(query) {
+  return request('/order/role/selectAllRoleUserBind', {
     method: 'POST',
     body:query
   });
