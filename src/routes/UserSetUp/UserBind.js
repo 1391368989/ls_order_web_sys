@@ -6,16 +6,15 @@ import { connect } from 'dva';
 }))
 export default class UserBind extends PureComponent{
   pagingChange =(value)=>{
-    let selectCompany = {
+    console.log(value.current);
+    let query = {
       page_rows:10,
       page_page:value.current,
     };
     const { dispatch } = this.props;
     dispatch({
       type: 'rule/pagingUserList',
-      payload:{
-        selectCompany:selectCompany,
-      }
+      payload:query,
     });
   };
   onSelectChange = (selectedRowKeys) => {

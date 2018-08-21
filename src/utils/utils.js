@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { parse, stringify } from 'qs';
-
+import { message } from 'antd';
 export function fixedZero(val) {
   return val * 1 < 10 ? `0${val}` : val;
 }
@@ -79,7 +79,29 @@ function accMul(arg1, arg2) {
   m += s2.split('.').length > 1 ? s2.split('.')[1].length : 0;
   return (Number(s1.replace('.', '')) * Number(s2.replace('.', ''))) / 10 ** m;
 }
-
+export function getQuery(search) {
+  let str = search.replace('?','');
+  let arr = str.split('&');
+  let obj = {};
+  for(let i=0; i<arr.length;i++ ){
+    let new_arr = arr[i].split('=');
+    const newStr = decodeURI(new_arr[1]);
+    obj[new_arr[0]] = newStr
+  }
+  return obj
+}
+export function validatePhone(phone) {
+  let reg = /^1[3|4|5|7|8][0-9]{9}$/; //验证规则
+  if(phone === ''||phone === undefined){
+    message.error('手机号不能为空。');
+    return true;
+  }
+  if(!reg.test(phone)){
+    message.error('手机号格式不对。');
+    return true;
+  }
+  return false;
+}
 export function digitUppercase(n) {
   const fraction = ['角', '分'];
   const digit = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
@@ -182,3 +204,11 @@ export function isUrl(path) {
 }
 export const host = 'http://112.27.113.51:9040';
 
+export function isRepeat(obj,vlaue) {
+  for(let j in obj ){
+    if(j === vlaue){
+      return false
+    }
+  }
+  return true
+}

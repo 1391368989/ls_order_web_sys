@@ -88,6 +88,10 @@ const menuData = [
       {
         name: '权限管理',
         path: 'power-management',
+      },
+      {
+        name: '菜单编辑',
+        path: 'power-tree',
       }
     ],
   },

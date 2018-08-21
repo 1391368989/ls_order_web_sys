@@ -29,48 +29,36 @@ import styles from './UserManagement.less';
   loading: loading.models.rule,
 }))
 export default class UserManagement extends Component {
-
+  start={
+    query:{
+      page_rows:10,
+      page_page:1,
+    }
+  };
   componentDidMount() {
+    this.onInit();
+  }
+  onInit(){
     const { dispatch } = this.props;
     dispatch({
       type: 'rule/pagingUserList',
-      payload:{
-        page_rows:10,
-        page_page:1,
-      }
+      payload:this.start.query
     });
-  }
-
+  };
+  toPagination =(current)=>{
+    this.start.query.page_page = current;
+    this.onInit();
+  };
   render() {
     const { form, rule } = this.props;
     const {userData} = rule;
     const { getFieldDecorator} = form;
-    const tableData = [
-      {
-        key: '1',
-        workId: '00001',
-        name: 'John Brown',
-        department: 'New York No. 1 Lake Park',
-      },
-      {
-        key: '2',
-        workId: '00002',
-        name: 'Jim Green',
-        department: 'London No. 1 Lake Park',
-      },
-      {
-        key: '3',
-        workId: '00003',
-        name: 'Joe Black',
-        department: 'Sidney No. 1 Lake Park',
-      },
-    ];
     return (
       <PageHeaderLayout title="成员管理">
         <Card bordered={false}>
           {getFieldDecorator('members', {
             initialValue: userData.dataList,
-          })(<TableForm />)}
+          })(<TableForm onInit={()=>this.onInit()} onToPagination={(e)=>this.toPagination(e)}/>)}
         </Card>
       </PageHeaderLayout>
     )

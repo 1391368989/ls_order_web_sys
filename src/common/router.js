@@ -101,7 +101,7 @@ export const getRouterData = app => {
       component: dynamicWrapper(app, ['order'], () => import('../routes/Order/OrderInfo')),
     },
     '/order/to-be-verified': {
-      component: dynamicWrapper(app, [], () => import('../routes/Order/ToBeVerified')),
+      component: dynamicWrapper(app, ['childOrder'], () => import('../routes/Order/ToBeVerified')),
     },
    '/order/verified-order': {
       component: dynamicWrapper(app, [], () => import('../routes/Order/VerifiedOrder')),
@@ -138,9 +138,9 @@ export const getRouterData = app => {
     '/user-set-up/power-management': {
       component: dynamicWrapper(app, ['rule'], () => import('../routes/UserSetUp/PowerManagement')),
     },
-  /*  '/user-set-up/power-tree': {
-      component: dynamicWrapper(app, [], () => import('../routes/UserSetUp/SetUpPowerTree')),
-    },*/
+    '/user-set-up/power-tree': {
+      component: dynamicWrapper(app, ['menu'], () => import('../routes/UserSetUp/SetUpPowerTree')),
+    },
     //个人设置
     '/me/me-pass': {
       component: dynamicWrapper(app, [], () => import('../routes/Me/MePass')),
@@ -216,12 +216,11 @@ export const getRouterData = app => {
         import('../routes/Exception/triggerException')
       ),
     },
-
     '/phone': {
       component: dynamicWrapper(app, [], () => import('../layouts/MobileLayout')),
     },
     '/phone/info': {
-      component: dynamicWrapper(app, [], () => import('../routes/Mobile/UserInfo')),
+      component: dynamicWrapper(app, ['mobile'], () => import('../routes/Mobile/UserInfo')),
     },
     '/phone/success': {
       component: dynamicWrapper(app, [], () => import('../routes/Mobile/Success')),

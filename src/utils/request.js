@@ -45,6 +45,7 @@ function checkStatus(response) {
 export default function request(url, options) {
   const defaultOptions = {
     credentials: 'include',
+    timeout:1000*60*10
   };
   const newOptions = { ...defaultOptions, ...options };
   if (

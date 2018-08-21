@@ -203,6 +203,19 @@ export default class TableForm extends PureComponent {
       </Tree>
     );
   };
+  renderTreeNodes = (data) => {
+    return data.map((item) => {
+      if (item.menuVOS === null) item.menuVOS = [];
+      if (item.menuVOS) {
+        return (
+          <TreeNode title={item.name} key={item.id} dataRef={item}>
+            {this.renderTreeNodes(item.menuVOS)}
+          </TreeNode>
+        );
+      }
+      return <TreeNode {...item} />;
+    });
+  };
   onExpand = (expandedKeys) => {
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
     // or, you can remove all expanded children keys.
@@ -211,7 +224,6 @@ export default class TableForm extends PureComponent {
       autoExpandParent: false,
     });
   };
-
   onCheck = (checkedKeys) => {
     const { dispatch } = this.props;
     dispatch({
@@ -221,11 +233,11 @@ export default class TableForm extends PureComponent {
       }
     });
   };
-
   onSelect = (selectedKeys, info) => {
     console.log('onSelect', info);
     this.setState({ selectedKeys });
   };
+
   showModal = (id) => {
     this.setState({
       visible: true,
@@ -245,6 +257,7 @@ export default class TableForm extends PureComponent {
       roleId:id
     });
     //获取所有成员
+
     const { dispatch } = this.props;
     dispatch({
       type: 'rule/pagingUserList',
@@ -289,12 +302,13 @@ export default class TableForm extends PureComponent {
       visibleMember: false,
     });
     const { dispatch ,rule } = this.props;
-    const {userBindList} = rule;
-    console.log(userBindList);
+    const {userBindList,originalUserBindList} = rule;
+    const obj = this.filtration(originalUserBindList,userBindList);
+    //userIds
     dispatch({
       type: 'rule/fetchBindUser',
       payload:{
-        "userIds": userBindList ,
+        obj,
         "roleId": this.state.roleId
       }
     });
@@ -325,17 +339,36 @@ export default class TableForm extends PureComponent {
       roleId:id
     });
   };
-
+  filtration(data,newData){
+    let delArr = [] ,addArr =[];
+    for (let i in newData){
+      let str = newData[i];
+      if(data.indexOf(str)<0){
+        addArr.push(str);
+      }
+    }
+    for (let i in data){
+      let str = data[i];
+      if(newData.indexOf(str)<0){
+        delArr.push(str);
+      }
+    }
+    return {
+      delArr,
+      addArr
+    }
+  };
   handleCompanyBindOk = () => {
     this.setState({
       visibleCompanyBind: false,
     });
     const { dispatch ,rule } = this.props;
-    const {bindCompanyList} = rule;
+    const {bindCompanyList ,originalBindCompanyList} = rule;
+    const obj = this.filtration(originalBindCompanyList,bindCompanyList);
     dispatch({
       type: 'rule/fetchBindCompany',
       payload:{
-        "companyIds": bindCompanyList ,
+        obj,
         "roleId": this.state.roleId
       }
     });
@@ -345,19 +378,7 @@ export default class TableForm extends PureComponent {
       visibleCompanyBind: false,
     });
   };
-  renderTreeNodes = (data) => {
-    return data.map((item) => {
-      if (item.menuVOS === null) item.menuVOS = [];
-      if (item.menuVOS) {
-        return (
-          <TreeNode title={item.name} key={item.id} dataRef={item}>
-            {this.renderTreeNodes(item.menuVOS)}
-          </TreeNode>
-        );
-      }
-      return <TreeNode {...item} />;
-    });
-  };
+
   render() {
     const columns = [
       {
@@ -467,7 +488,8 @@ export default class TableForm extends PureComponent {
       },
     ];
     const {  data } = this.state;
-    const { loading,rule} = this.props;
+    const { loading} = this.props;
+
     return (
       <Fragment>
         <Table
@@ -515,7 +537,7 @@ export default class TableForm extends PureComponent {
           destroyOnClose ={true}
           width={'800px'}
         >
-          {this.state.visibleCompanyBind&&<CompanyBind roleId={this.state.roleId}/>}
+          {this.state.visibleCompanyBind&&<CompanyBind/>}
         </Modal>
       </Fragment>
     );

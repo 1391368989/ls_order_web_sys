@@ -6,12 +6,6 @@ const confirm = Modal.confirm;
   rule
 }))
 export default class CompanyBind extends PureComponent{
-  constructor(props) {
-    super(props);
-    this.state = {
-      roleId: props.roleId
-    };
-  }
   pagingChange =(value)=>{
     let selectCompany = {
       page_rows:10,
@@ -25,65 +19,14 @@ export default class CompanyBind extends PureComponent{
       }
     });
   };
-  showConfirm =(doOk)=>{
-    confirm({
-      title: '你确定要取消当前商家的绑定吗?',
-      content: '',
-      onOk() {
-        doOk()
-      },
-      onCancel() {
-      },
-    });
-  };
-  filter = (newData,data)=>{
-    let arr = [];
-    console.log(newData);
-    console.log(data);
-    for(let i in newData){
-      let str = newData[i];
-      for(let j in data){
-        if(str === data[j]){
-          str = parseInt(str);
-          arr.push(str)
-         return arr ;
-        }
-      }
-    }
-    return arr
-  };
   onSelectChange = (selectedRowKeys) => {
-    console.log(selectedRowKeys);
-    const { rule } = this.props;
-    const { bindCompanyList} = rule;
-    if(selectedRowKeys.length<bindCompanyList.length){
-      //删除
-      let arr = this.filter(selectedRowKeys,bindCompanyList);
-      this.showConfirm(()=>{
-        const { dispatch } = this.props;
-        dispatch({
-          type: 'rule/deleteRoleCompanyBind',
-          payload:{
-            "roleId": this.state.roleId,
-            "companyIds": arr
-          }
-        });
-        dispatch({
-          type: 'rule/setBindCompanyList',
-          payload:{
-            bindCompanyList:selectedRowKeys,
-          }
-        });
-      })
-    }else{
-      const { dispatch } = this.props;
-      dispatch({
-        type: 'rule/setBindCompanyList',
-        payload:{
-          bindCompanyList:selectedRowKeys,
-        }
-      });
-    }
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'rule/setBindCompanyList',
+      payload:{
+        bindCompanyList:selectedRowKeys,
+      }
+    });
   };
   render() {
     const { rule } = this.props;

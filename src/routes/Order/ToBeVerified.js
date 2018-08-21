@@ -23,14 +23,11 @@ import {
 import styles from './OrderInfo.less';
 
 const RangePicker = DatePicker.RangePicker;
-const rangeConfig = {
-  rules: [{ type: 'array', required: true, message: '请输入要查询的时间段!' }]
-}
 const FormItem = Form.Item;
 @Form.create()
-@connect(({ workplace, loading }) => ({
-  workplace,
-  loading: loading.models.workplace,
+@connect(({ childOrder, loading }) => ({
+  childOrder,
+  childOrderListLoading: loading.effects['childOrder/childOrderList'],
 }))
 export default class OrderInfo extends Component {
   state = {
@@ -38,25 +35,40 @@ export default class OrderInfo extends Component {
     loading: false,
     visible: false,
     value: 1,
+    query:{
+      page_rows:10,
+      page_page:1,
+    }
   };
-
+  componentDidMount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'childOrder/fetch',
+      payload: {
+        type: "childorderstatus"
+      },
+    });
+  }
+  handleFormReset =()=>{
+    this.state.query ={
+      page_rows:10,
+      page_page:1,
+    };
+    this.initPagination()
+  };
   handleSearch = e => {
     e.preventDefault();
-    const { dispatch, form } = this.props;
+    const { form } = this.props;
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
-      const date = [moment(values.date[0]._d).format('YYYY-MM-DD HH:mm'),moment(values.date[1]._d).format('YYYY-MM-DD HH:mm')];
-      values ={
+   /*   const date = [moment(values.date[0]._d).format('YYYY-MM-DD HH:mm'),moment(values.date[1]._d).format('YYYY-MM-DD HH:mm')];
+      ;*/
+      const query = this.state.query;
+      this.state.query = {
         ...values,
-        date:date
-      }
-      this.setState({
-        formValues: values,
-      });
-      dispatch({
-        type: 'workplace/fetch',
-        payload: values,
-      });
+        ...query,
+      };
+      this.initPagination()
     });
   };
   renderSimpleForm = ()=> {
@@ -66,56 +78,44 @@ export default class OrderInfo extends Component {
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={24}>
           <Col xs={24}  xl={12} xxl={6}>
-            <FormItem label="网点名称">
-              {getFieldDecorator('no',{
-                rules: [{
-                  required: true,
-                  message: '请输入网点名称!',
-                }],
-              })(<Input placeholder="请输入网点名称" />)}
+            <FormItem label="订单编号">
+              {getFieldDecorator('search_parentOrderId_EQ')(<Input placeholder="请输入订单编号" />)}
             </FormItem>
           </Col>
           <Col xs={24}  xl={12} xxl={6}>
-            <FormItem label="订单状态">
-              {getFieldDecorator('no2',{
-                rules: [{
-                  required: true,
-                  message: '请输入网点名称!',
-                }],
-              })(<Input placeholder="请输入网点名称" />)}
+            <FormItem label="网点/代理商名称">
+              {getFieldDecorator('search_name_LIKE')(<Input placeholder="请输入网点名称" />)}
             </FormItem>
           </Col>
           <Col xs={24}  xl={12} xxl={6}>
             <FormItem label="商户名称">
-              {getFieldDecorator('no3',{
-                rules: [{
-                  required: true,
-                  message: '请输入网点名称!',
-                }],
-              })(<Input placeholder="请输入网点名称" />)}
+              {getFieldDecorator('no3')(<Input placeholder="请输入网点名称" />)}
             </FormItem>
           </Col>
           <Col xs={24}  xl={12} xxl={6}>
             <FormItem label="姓名/手机号">
-              {getFieldDecorator('no4',{
-                rules: [{
-                  required: true,
-                  message: '姓名/手机号!',
-                }],
-              })(<Input placeholder="姓名/手机号" />)}
+              {getFieldDecorator('no4')(<Input placeholder="姓名/手机号" />)}
+            </FormItem>
+          </Col>
+          <Col xs={24}  xl={12} xxl={6}>
+            <FormItem label="订单状态">
+              {getFieldDecorator('no5')(<Input placeholder="请输入网点名称" />)}
             </FormItem>
           </Col>
           <Col xs={24}  xl={12} xxl={9}>
             <FormItem label="查询时间">
-              {getFieldDecorator('date', rangeConfig)(
+              {getFieldDecorator('date')(
                 <RangePicker showTime format="YYYY-MM-DD HH:mm:ss"/>
               )}
             </FormItem>
           </Col>
-          <Col xs={24} xl={12} xxl={15} style={{textAlign:'right'}}>
-            <span className={`${styles.submitButtons} ${styles.mr20}`}>
+          <Col xs={24} style={{textAlign:'right'}}>
+            <span className={`${styles.submitButtons}`}>
               <Button type="primary" htmlType="submit">
                 查询
+              </Button>
+               <Button  style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
+                重置
               </Button>
             </span>
           </Col>
@@ -134,31 +134,31 @@ export default class OrderInfo extends Component {
         loading: false,
       });
     }, 1000);
-  }
+  };
 
   onSelectChange = (selectedRowKeys) => {
     console.log('selectedRowKeys changed: ', selectedRowKeys);
     this.setState({ selectedRowKeys });
-  }
+  };
   showModal = () => {
     this.setState({
       visible: true,
     });
-  }
+  };
 
   handleOk = (e) => {
     console.log(e);
     this.setState({
       visible: false,
     });
-  }
+  };
 
   handleCancel = (e) => {
     console.log(e);
     this.setState({
       visible: false,
     });
-  }
+  };
   onChange = (e) => {
     //, e.target.value
     console.log('radio checked', e.target.value);
@@ -166,59 +166,86 @@ export default class OrderInfo extends Component {
       value: e.target.value,
     });
   }
+  onPaginationChange = (e)=>{
+    const query = this.state.query;
+    this.state.query ={
+      ...query,
+      page_rows:e.pageSize,
+      page_page:e.current,
+    };
+    this.initPagination()
+  };
+  initPagination =()=>{
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'childOrder/childOrderList',
+      payload: this.state.query,
+    });
+  };
   renderOrderTable(){
-    const dataSource =[{
-      key: '1',
-      no: '0225105',
-      totalIncome: '100000',
-      totalBalance: '40000',
-      presentBalance: '40000',
-      accountPeriod: '40000',
-      accountState:'审核中',
-    }
-    ];
-    const columns = [{
-      title: 'ID',
-      dataIndex: 'no',
-      key: 'no',
+    const { childOrder,childOrderListLoading } = this.props;
+    const { childOrderPage } = childOrder;
+    const paginationProps = {
+      showSizeChanger: true,
+      showQuickJumper: true,
+      pageSize: childOrderPage.rows,
+      total: childOrderPage.totalRows,
+      current:childOrderPage.page
+    };
+    const columns = [
+      {
+      title: '编号',
+      dataIndex: 'childOrderNo',
+      key: 'childOrderNo',
     }, {
       title: '用户姓名',
-      dataIndex: 'totalIncome',
-      key: 'totalIncome',
+      dataIndex: 'userName',
+      key: 'userName',
     }, {
       title: '手机号码',
-      dataIndex: 'totalBalance',
-      key: 'totalBalance',
+      dataIndex: 'userPhone',
+      key: 'userPhone',
     },
       {
         title: '身份证号',
-        dataIndex: 'accountPeriod',
-        key: 'accountPeriod1',
+        dataIndex: 'userIdcode',
+        key: 'userIdcode',
+      },
+      {
+        title: '提示信息',
+        dataIndex: 'childOrderRemake',
+        key: 'childOrderRemake',
       },
       {
         title: '订单备注',
-        dataIndex: 'accountPeriod1',
-        key: 'accountPeriod2',
+        dataIndex: 'childOrderMsg',
+        key: 'childOrderMsg',
       }, {
         title: '商户名称',
-        dataIndex: 'accountPeriod2',
-        key: 'accountPeriod3',
+        dataIndex: 'orderPromulgator',
+        key: 'orderPromulgator',
       },{
         title: '订单名称',
-        dataIndex: 'accountPeriod3',
-        key: 'accountPeriod4',
+        dataIndex: 'orderName',
+        key: 'orderName',
       },{
         title: '网点/代理商',
-        dataIndex: 'accountPeriod4',
-        key: 'accountPeriod5',
+        dataIndex: 'companyName',
+        key: 'companyName',
       },{
         title: '创建时间',
-        dataIndex: 'accountPeriod5',
-        key: 'accountPeriod6',
-      },{
-        title: '创建时间',
-        dataIndex: 'accountPeriod8',
-        key: 'accountPeriod7',
+        dataIndex: 'childOrderCreateDateLabel',
+        key: 'childOrderCreateDateLabel',
+      },
+      {
+        title: '其他',
+        dataIndex: 'childFailedRemake',
+        key: 'childFailedRemake',
+      },
+      {
+        title: '状态',
+        dataIndex: 'childOrderStatusLbel',
+        key: 'childOrderStatusLbel',
       },
       {
         title: '操作',
@@ -252,7 +279,15 @@ export default class OrderInfo extends Component {
             {hasSelected ? `已选择 ${selectedRowKeys.length} 列` : ''}
           </span>
         </div>
-        <Table  rowSelection={rowSelection} dataSource={dataSource} columns={columns} pagination={true}/>
+        <Table
+          onChange={this.onPaginationChange}
+          rowSelection={rowSelection}
+          dataSource={childOrderPage.dataList}
+          columns={columns}
+          pagination={paginationProps}
+          loading={childOrderListLoading}
+          rowKey={record => record.id}
+        />
         <Modal
           title="订单审核"
           visible={this.state.visible}

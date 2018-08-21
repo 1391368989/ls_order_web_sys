@@ -28,72 +28,138 @@ const FormItem = Form.Item;
 @Form.create()
 @connect(({ agentinfo, loading }) => ({
   agentinfo,
-  loading: loading.models.agentinfo,
+  loading: loading.effects['agentinfo/fetchCompany'],
 }))
 
 export default class AgentInfo extends Component {
   state = {
     loading: false,
     visible: false,
+    query:{
+      page_rows:10,
+      page_page:1,
+    },
+    data:null,
+    load:false,
   };
-/*
   componentDidMount() {
+    this.connection();
+    this.initPagination();
     const { dispatch } = this.props;
     dispatch({
-      type: 'agentinfo/fetchTags',
+      type: 'agentinfo/fetchInit',
+      payload:{
+        type: "companytype"
+      },
     });
-  }*/
-
+  }
+  initPagination(){
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'agentinfo/fetchCompany',
+      payload:this.state.query
+    });
+  }
+  connection =()=>{
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'agentinfo/ceshi',
+      payload:{
+        index:0
+      },
+      callback:(response)=>{
+        this.connection();
+        if(response === '123'){
+          this.state.query ={
+            page_rows:10,
+            page_page:1,
+          };
+          this.initPagination()
+        }
+      }
+    });
+  };
   addAgentInfo =()=>{
     this.setState({
       visible: true,
+      data:null,
     });
   };
   handleOk = (e) => {
-    console.log(e);
     this.setState({
       visible: false,
     });
+    if(this.state.load){
+      this.initPagination()
+    }
   };
 
   handleCancel = (e) => {
-    console.log(e);
     this.setState({
       visible: false,
     });
+    if(this.state.load){
+      this.initPagination()
+    }
   };
-/*  handleChange =(value)=>{
-    this.setState({
-        modalPowerGroup:value
-      }
-    )
-  };*/
-  renderSimpleForm() {
+  handleFormReset =()=>{
+    this.state.query ={
+      page_rows:10,
+      page_page:1,
+    };
+    this.initPagination()
+  };
+  onChange = (e)=>{
+    const query = this.state.query;
+    this.state.query ={
+      ...query,
+      page_rows:e.pageSize,
+      page_page:e.current,
+    };
+    this.initPagination()
+  };
+  handleSearch = e => {
+    e.preventDefault();
     const { form } = this.props;
+    form.validateFieldsAndScroll((err, values) => {
+      if (err) return;
+      const query = this.state.query;
+      this.state.query ={
+        ...query,
+        ...values
+      };
+      this.initPagination();
+    });
+  };
+  onInitPagination =()=>{
+    this.state.load = true;
+  };
+  renderSimpleForm() {
+    const { form} = this.props;
     const { getFieldDecorator } = form;
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
             <FormItem label="代理商">
-              {getFieldDecorator('no',{
+              {getFieldDecorator('search_name_LIKE',{
                 rules: [{
                   required: true,
-                  message: '请输入代理商编号!',
+                  message: '请输入代理商名称!',
                 }],
-              })(<Input placeholder="请输入代理商编号" />)}
+              })(<Input placeholder="请输入代理商名称" />)}
             </FormItem>
           </Col>
-          <Col md={12} sm={24}>
+          <Col md={8} sm={24}>
           </Col>
-          <Col md={4} sm={24}>
+          <Col md={8} sm={24} style={{textAlign:'right'}}>
             <span className={styles.submitButtons}>
               <Button type="primary" htmlType="submit">
                 查询
               </Button>
-    {/*          <Button  style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
+              <Button  style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
                 重置
-              </Button>*/}
+              </Button>
                <Button style={{ marginLeft: 8 }} onClick={this.addAgentInfo}>
                 添加
               </Button>
@@ -103,79 +169,59 @@ export default class AgentInfo extends Component {
       </Form>
     );
   };
-  handleSearch = e => {
-    e.preventDefault();
-    const { dispatch, form } = this.props;
-    form.validateFieldsAndScroll((err, values) => {
-      if (err) return;
-      console.log('moment')
-      const date = [moment(values.date[0]._d).format('YYYY-MM-DD HH:mm'),moment(values.date[1]._d).format('YYYY-MM-DD HH:mm')];
-      values ={
-        ...values,
-        date:date
-      }
-      this.setState({
-        formValues: values,
-      });
-      dispatch({
-        type: 'workplace/fetch',
-        payload: values,
-      });
+  editCompany (item){
+    this.setState({
+      data:item,
+      visible: true,
     });
   };
   render() {
-    const dataSource = [{
-      key: '1',
-      no: '0225105',
-      totalIncome: '100000',
-      totalBalance: '40000',
-      presentBalance: '40000',
-      accountPeriod: '40000',
-    }];
-    const columns = [{
+    const { agentinfo,loading } = this.props;
+    const { dataPage={},provinceList,powerGroupList} = agentinfo;
+    const paginationProps = {
+      showSizeChanger: true,
+      showQuickJumper: true,
+      pageSize: dataPage.rows,
+      total: dataPage.totalRows,
+      current:dataPage.page
+    };
+    const columns = [
+      {
       title: '序号',
-      dataIndex: 'no',
-      key: 'no',
+      dataIndex: 'key',
+      key: 'key',
     }, {
       title: '网点名称',
-      dataIndex: 'dotName',
-      key: 'dotName',
+      dataIndex: 'name',
+      key: 'name',
     }, {
       title: '负责人',
-      dataIndex: 'personInCharge',
-      key: 'personInCharge',
+      dataIndex: 'linkman',
+      key: 'linkman',
     },
       {
         title: '手机号码',
-        dataIndex: 'phone',
-        key: 'phone',
+        dataIndex: 'linkphone',
+        key: 'linkphone',
       },
       {
         title: '账户余额',
-        dataIndex: 'accountBalance',
-        key: 'accountBalance',
-      }, {
-        title: '可提现金额',
-        dataIndex: 'availableAmount',
-        key: 'availableAmount',
-      },{
-        title: '冻结金额',
-        dataIndex: 'freezingAmount',
-        key: 'freezingAmount',
+        dataIndex: 'price',
+        key: 'price',
       },
       {
         title: '开户行',
-        dataIndex: 'openingBank',
-        key: 'openingBank',
+        dataIndex: 'bankAddress',
+        key: 'bankAddress',
       },
       {
-        title: '银行卡',
-        dataIndex: 'bankCard',
-        key: 'bankCard',
+        title: '银行卡号',
+        dataIndex: 'bankCode',
+        key: 'bankCode',
       },{
         title: '所属城市',
-        dataIndex: 'ownedCity',
-        key: 'ownedCity',
+        dataIndex: 'cityIdLabel',
+        key: 'cityIdLabel',
       },
       {
         title: '地址',
@@ -195,7 +241,7 @@ export default class AgentInfo extends Component {
                 重置密码
               </a>
               <Divider type="vertical" />
-              <a href="javascript:;">
+              <a onClick={()=>this.editCompany(record)}>
                 编辑
               </a>
             </div>
@@ -208,7 +254,7 @@ export default class AgentInfo extends Component {
         <Card>
           <div>
             <div className={styles.tableListForm}>{this.renderSimpleForm()}</div>
-            <Table dataSource={dataSource} columns={columns} pagination={true}/>
+            <Table loading={loading} dataSource={dataPage.dataList} columns={columns} pagination={paginationProps} onChange={this.onChange}/>
           </div>
           <div>
           </div>
@@ -220,7 +266,9 @@ export default class AgentInfo extends Component {
           onCancel={this.handleCancel}
           width="50%"
         >
-          <AddMember/>
+          {this.state.visible&&
+            <AddMember dataSource={this.state.data} provinceList={provinceList} powerGroupList={powerGroupList} onInitPagination={this.onInitPagination}/>
+          }
         </Modal>
       </PageHeaderLayout>
     )

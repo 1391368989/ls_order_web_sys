@@ -4,7 +4,7 @@ import { toLogin } from '../services/login';
 import { getImg } from '../services/createSecurityCode';
 import { setAuthority } from '../utils/authority';
 import { reloadAuthorized } from '../utils/Authorized';
-import { setUserStart} from  '../utils/userStart'
+import { setUserInfo} from  '../utils/userInfo'
 import { getPageQuery } from '../utils/utils';
 
 export default {
@@ -24,6 +24,7 @@ export default {
       });
       // Login successfully
       if (response.flag === 0) {
+        setUserInfo(response.data.user);
         reloadAuthorized();
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();

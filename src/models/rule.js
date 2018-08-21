@@ -8,6 +8,8 @@ import { queryRule, companyBind, selectTree,getRole ,toDisable ,insertRoleMenuBi
   insertRoleUserBind,
   deleteRoleUserBind,
   deleteRoleCompanyBind,
+  addUser,
+  setUser,
 } from '../services/order';
 import { message } from 'antd';
 export default {
@@ -19,6 +21,7 @@ export default {
     },
     treeList:[],
     userBindList:[],
+    originalUserBindList:[],
     userData:{
       dataList:[],
       totalRows: 20,
@@ -26,6 +29,7 @@ export default {
       rows:10,
     },
     bindCompanyList:[],
+    originalBindCompanyList:[],
     companySelectedKeys:[],
     companyData:{
       dataList:[],
@@ -139,19 +143,21 @@ export default {
       });
     },
     *fetchBindCompany({ payload }, { call, put }){
-      const response = yield call(companyBind, payload);
-      if(response.flag === 0){
-        message.success('修改成功');
-      }else{
-        message.success(response.msg);
+      if(payload.obj.addArr.length>=1) {
+        const response = yield call(companyBind, {companyIds: payload.obj.addArr, roleId: payload.roleId});
+        if (response.flag === 0) {
+          message.success('添加成功');
+        } else {
+          message.success(response.msg);
+        }
       }
-    },
-    *deleteRoleCompanyBind({ payload }, { call, put }){
-      const response = yield call(deleteRoleCompanyBind, payload);
-      if(response.flag === 0){
-        message.success('修改成功');
-      }else{
-        message.success(response.msg);
+      if(payload.obj.delArr.length>=1) {
+        const res = yield call(deleteRoleCompanyBind, {companyIds: payload.obj.delArr, roleId: payload.roleId});
+        if (res.flag === 0) {
+          message.success('删除成功');
+        } else {
+          message.success(res.msg);
+        }
       }
     },
     *pagingUserList({ payload }, { call, put }){
@@ -185,13 +191,45 @@ export default {
       });
     },
     *fetchBindUser({ payload }, { call, put }){
-      const response = yield call(insertRoleUserBind, payload);
+      if(payload.obj.addArr.length>=1){
+        const response = yield call(insertRoleUserBind, {userIds:payload.obj.addArr,roleId:payload.roleId});
+        if(response.flag === 0){
+          message.success('添加成功');
+        }else{
+          message.success(response.msg);
+        }
+      }
+      if(payload.obj.delArr.length>=1){
+        const res = yield call(deleteRoleUserBind, {userIds:payload.obj.delArr,roleId:payload.roleId});
+        if(res.flag === 0){
+          message.success('删除成功');
+        }else{
+          message.success(res.msg);
+        }
+      }
+    },
+    *addUser({payload ,callback},{call}){
+      const response = yield call(addUser, payload);
       if(response.flag === 0){
-        message.success('修改成功');
+        message.success('添加成功');
+        if (callback) {
+          yield call(callback)
+        }
       }else{
         message.success(response.msg);
       }
     },
+    *setUser({payload, callback},{call}){
+      const response = yield call(setUser, payload);
+      if(response.flag === 0){
+        message.success('修改成功');
+        if (callback){
+          yield call(callback)
+        }
+      }else{
+        message.success(response.msg);
+      }
+    }
    /* *add({ payload, callback }, { call, put }) {
       const response = yield call(addRule, payload);
       yield put({
@@ -239,6 +277,7 @@ export default {
       return {
         ...state,
         companyData: action.payload.page,
+        originalBindCompanyList:action.payload.bindCompanyList,
         bindCompanyList:action.payload.bindCompanyList
       };
     } ,
@@ -263,7 +302,8 @@ export default {
     saveUserBindList(state,action){
       return {
         ...state,
-        userBindList: action.payload.userBindList
+        userBindList: action.payload.userBindList,
+        originalUserBindList:action.payload.userBindList
       };
     },
   },

@@ -1,176 +1,129 @@
 import React, { Component } from 'react';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import SetMenu from './SetMenu'
+import AddMenu from './AddMenu'
 import { connect } from 'dva';
 import {
-  Row,
-  Col,
+  Tree,
   Card,
   Form,
-  Input,
-  Icon,
-  Button,
-  Dropdown,
-  Menu,
-  InputNumber,
-  DatePicker,
-  Modal,
-  message,
-  Badge,
-  Divider,
-  Table,
-  Select,
-  Checkbox
+  Tabs,
+  Modal
 } from 'antd';
 import styles from './style.less';
 
-const CheckboxGroup = Checkbox.Group;
-const plainOptions = ['Apple', 'Pear', 'Orange'];
-const defaultCheckedList = ['Apple', 'Orange'];
 const FormItem = Form.Item;
-const { Option } = Select;
-const { RangePicker } = DatePicker;
-const fieldLabels = {
-  name: '权限组名',
-  url: '仓库域名',
-  owner: '仓库管理员',
-  approver: '审批人',
-  dateRange: '生效日期',
-  type: '仓库类型',
-  name2: '任务名',
-  url2: '任务描述',
-  owner2: '执行人',
-  approver2: '责任人',
-  dateRange2: '生效日期',
-  type2: '任务类型',
-};
+const TreeNode = Tree.TreeNode;
+const TabPane = Tabs.TabPane;
 @Form.create()
-@connect(({ workplace, loading }) => ({
-  workplace,
-  loading: loading.models.workplace,
+@connect(({ menu, loading }) => ({
+  menu,
+  loading: loading.models.menu,
 }))
 export default class SetUpPowerTree extends Component {
   state = {
-    checkedList: defaultCheckedList,
-    indeterminate: true,
-    checkAll: false,
+    autoExpandParent: true,
+    node:null,
+    selectedKeys:null,
+    visible:false,
   };
-
-  onChange = (checkedList) => {
-    this.setState({
-      checkedList,
-      indeterminate: !!checkedList.length && (checkedList.length < plainOptions.length),
-      checkAll: checkedList.length === plainOptions.length,
+  componentDidMount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'menu/fetchTree'
     });
   }
-
-  onCheckAllChange = (e) => {
+  onExpand = (expandedKeys) => {
+    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
+    // or, you can remove all expanded children keys.
     this.setState({
-      checkedList: e.target.checked ? plainOptions : [],
-      indeterminate: false,
-      checkAll: e.target.checked,
+      expandedKeys,
+      autoExpandParent: false,
     });
-  }
-
-  renderCheckbox = (item)=> {
+  };
+  onSelect = (selectedKeys, info) => {
+    setTimeout(()=>{
+      this.setState({ node:null });
+    },300);
+    if(this.state.node&&this.state.node === this.state.selectedKeys){
+        this.showModel();
+    }
+    this.setState({ selectedKeys,node:selectedKeys });
+  };
+  renderPowerMenu(){
+    const { menu } = this.props;
+    const {menuList} = menu;
+    return (
+      <Tree
+        defaultExpandAll
+        showLine
+        onExpand={this.onExpand}
+        onSelect={this.onSelect}
+      >
+        {this.renderTreeNodes(menuList)}
+      </Tree>
+    );
+  };
+  renderTreeNodes = (data) => {
+    return data.map((item) => {
+      if (item.menuVOS === null) item.menuVOS = [];
+      if (item.menuVOS) {
+        return (
+          <TreeNode title={item.name} key={item.id} dataRef={item}>
+            {this.renderTreeNodes(item.menuVOS)}
+          </TreeNode>
+        );
+      }
+      return <TreeNode {...item} />;
+    });
+  };
+  showModel(){
+    this.setState({
+      visible:true,
+    })
+  };
+  handleOk =()=>{
+    this.setState({
+      visible:false,
+    })
+  };
+  handleCancel  =()=>{
+    this.setState({
+      visible:false,
+    })
+  };
+  renderModalContent (){
     return(
       <div>
-        <div style={{ borderBottom: '1px solid #E9E9E9' }}>
-          <Checkbox
-            indeterminate={this.state.indeterminate}
-            onChange={this.onCheckAllChange}
-            checked={this.state.checkAll}
-          >
-            Check all
-          </Checkbox>
-        </div>
-        <br />
-        <CheckboxGroup options={plainOptions} value={this.state.checkedList} onChange={this.onChange} />
+        <Tabs type="card">
+          <TabPane tab="编辑当前菜单项" key="1">
+            <SetMenu/>
+          </TabPane>
+          <TabPane tab="新增子项" key="2">
+            <AddMenu/>
+          </TabPane>
+        </Tabs>,
       </div>
     )
   };
-
   render() {
-    const { form, dispatch, submitting } = this.props;
+    const { form, dispatch, submitting ,menu } = this.props;
     const { getFieldDecorator, validateFieldsAndScroll, getFieldsError } = form;
     return (
-      <PageHeaderLayout title="设置权限组">
-        <Card title="基本信息">
-          <Form layout="vertical" hideRequiredMark>
-            <Row gutter={16}>
-              <Col lg={6} md={12} sm={24}>
-                <FormItem label={fieldLabels.name}>
-                  {getFieldDecorator('name', {
-                    rules: [{ required: true, message: '请输入权限组名称' }],
-                  })(<Input placeholder="请输入权限组名称" />)}
-                </FormItem>
-              </Col>
-            {/*  <Col xl={{ span: 6, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
-                <Form.Item label={fieldLabels.url}>
-                  {getFieldDecorator('url', {
-                    rules: [{ required: true, message: '请选择' }],
-                  })(
-                    <Input
-                      style={{ width: '100%' }}
-                      addonBefore="http://"
-                      addonAfter=".com"
-                      placeholder="请输入"
-                    />
-                  )}
-                </Form.Item>
-              </Col>
-              <Col xl={{ span: 8, offset: 2 }} lg={{ span: 10 }} md={{ span: 24 }} sm={24}>
-                <Form.Item label={fieldLabels.owner}>
-                  {getFieldDecorator('owner', {
-                    rules: [{ required: true, message: '请选择管理员' }],
-                  })(
-                    <Select placeholder="请选择管理员">
-                      <Option value="xiao">付晓晓</Option>
-                      <Option value="mao">周毛毛</Option>
-                    </Select>
-                  )}
-                </Form.Item>
-              </Col>*/}
-            </Row>
-      {/*      <Row gutter={16}>
-              <Col lg={6} md={12} sm={24}>
-                <Form.Item label={fieldLabels.approver}>
-                  {getFieldDecorator('approver', {
-                    rules: [{ required: true, message: '请选择审批员' }],
-                  })(
-                    <Select placeholder="请选择审批员">
-                      <Option value="xiao">付晓晓</Option>
-                      <Option value="mao">周毛毛</Option>
-                    </Select>
-                  )}
-                </Form.Item>
-              </Col>
-              <Col xl={{ span: 6, offset: 2 }} lg={{ span: 8 }} md={{ span: 12 }} sm={24}>
-                <Form.Item label={fieldLabels.dateRange}>
-                  {getFieldDecorator('dateRange', {
-                    rules: [{ required: true, message: '请选择生效日期' }],
-                  })(
-                    <RangePicker placeholder={['开始日期', '结束日期']} style={{ width: '100%' }} />
-                  )}
-                </Form.Item>
-              </Col>
-              <Col xl={{ span: 8, offset: 2 }} lg={{ span: 10 }} md={{ span: 24 }} sm={24}>
-                <Form.Item label={fieldLabels.type}>
-                  {getFieldDecorator('type', {
-                    rules: [{ required: true, message: '请选择仓库类型' }],
-                  })(
-                    <Select placeholder="请选择仓库类型">
-                      <Option value="private">私密</Option>
-                      <Option value="public">公开</Option>
-                    </Select>
-                  )}
-                </Form.Item>
-              </Col>
-            </Row>*/}
-          </Form>
+      <PageHeaderLayout title="菜单设置">
+        <Card title="菜单配置" style={{marginTop:34}}>
+          {this.renderPowerMenu()}
         </Card>
-        <Card title="权限配置" style={{marginTop:34}}>
-          {this.renderCheckbox()}
-        </Card>
+        <Modal
+          title="菜单编辑"
+          visible={this.state.visible}
+          onOk={this.handleOk}
+          onCancel={this.handleCancel}
+          destroyOnClose ={true}
+          width={'800px'}
+        >
+          {this.state.visible&&this.renderModalContent()}
+        </Modal>
       </PageHeaderLayout>
     )
   }
