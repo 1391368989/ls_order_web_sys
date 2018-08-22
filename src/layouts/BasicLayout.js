@@ -215,6 +215,7 @@ class BasicLayout extends React.PureComponent {
     } = this.props;
     const { isMobile: mb } = this.state;
     const bashRedirect = this.getBaseRedirect();
+    console.log(menu.list);
     const layout = (
       <Layout>
         <SiderMenu

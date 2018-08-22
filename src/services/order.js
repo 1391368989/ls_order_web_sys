@@ -102,10 +102,10 @@ export async function selectChildOrder(query) {
 }
 
 /*
-* 获取菜单列表
+* 获取用户菜单
 * */
 export async function getMenuData(query) {
-  return request('/order/menuData', {
+  return request('/order/user/selectUserMenu', {
     method: 'POST',
     body:query
   });

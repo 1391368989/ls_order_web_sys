@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import moment from 'moment';
 import { connect } from 'dva';
 import {
   Row,
@@ -10,7 +11,7 @@ import {
   Icon,
   Button,
   Dropdown,
-  Menu,
+  Select,
   InputNumber,
   DatePicker,
   Modal,
@@ -23,6 +24,7 @@ import {
 import styles from './OrderInfo.less';
 
 const RangePicker = DatePicker.RangePicker;
+const Option = Select.Option;
 const FormItem = Form.Item;
 @Form.create()
 @connect(({ childOrder, loading }) => ({
@@ -50,6 +52,7 @@ export default class OrderInfo extends Component {
     });
   }
   handleFormReset =()=>{
+    this.props.form.resetFields();
     this.state.query ={
       page_rows:10,
       page_page:1,
@@ -61,25 +64,35 @@ export default class OrderInfo extends Component {
     const { form } = this.props;
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
-   /*   const date = [moment(values.date[0]._d).format('YYYY-MM-DD HH:mm'),moment(values.date[1]._d).format('YYYY-MM-DD HH:mm')];
-      ;*/
       const query = this.state.query;
+      let childOrderCreateDate = {};
+      if(values.date){
+        const date = [moment(values.date[0]._d).format('YYYY-MM-DD HH:mm:ss'),moment(values.date[1]._d).format('YYYY-MM-DD HH:mm:ss')];
+        childOrderCreateDate ={
+          search_childOrderCreateDate_GTE:date[0],
+          search_childOrderCreateDate_LT:date[1],
+        };
+        delete values.date;
+      }
       this.state.query = {
-        ...values,
         ...query,
+        ...values,
+        ...childOrderCreateDate,
+        page_page:1,
       };
       this.initPagination()
     });
   };
   renderSimpleForm = ()=> {
-    const { form } = this.props;
+    const { form, childOrder} = this.props;
+    const {statusList} = childOrder;
     const { getFieldDecorator } = form;
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={24}>
           <Col xs={24}  xl={12} xxl={6}>
             <FormItem label="订单编号">
-              {getFieldDecorator('search_parentOrderId_EQ')(<Input placeholder="请输入订单编号" />)}
+              {getFieldDecorator('search_childOrderNo_EQ')(<Input placeholder="请输入订单编号" />)}
             </FormItem>
           </Col>
           <Col xs={24}  xl={12} xxl={6}>
@@ -89,17 +102,23 @@ export default class OrderInfo extends Component {
           </Col>
           <Col xs={24}  xl={12} xxl={6}>
             <FormItem label="商户名称">
-              {getFieldDecorator('no3')(<Input placeholder="请输入网点名称" />)}
+              {getFieldDecorator('search_orderPromulgator_LIKE')(<Input placeholder="请输入网点名称" />)}
             </FormItem>
           </Col>
           <Col xs={24}  xl={12} xxl={6}>
-            <FormItem label="姓名/手机号">
-              {getFieldDecorator('no4')(<Input placeholder="姓名/手机号" />)}
+            <FormItem label="手机号">
+              {getFieldDecorator('search_userPhone_LIKE')(<Input placeholder="姓名/手机号" />)}
             </FormItem>
           </Col>
           <Col xs={24}  xl={12} xxl={6}>
             <FormItem label="订单状态">
-              {getFieldDecorator('no5')(<Input placeholder="请输入网点名称" />)}
+              {getFieldDecorator('search_childOrderStatus_EQ')(
+                <Select placeholder="请选择订单状态">
+                {statusList.map((item,index) =>
+                  <Option value={item.code} key={index}>{item.label}</Option>
+                )}
+              </Select>)
+              }
             </FormItem>
           </Col>
           <Col xs={24}  xl={12} xxl={9}>

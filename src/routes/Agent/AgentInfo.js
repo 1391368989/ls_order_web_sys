@@ -103,6 +103,7 @@ export default class AgentInfo extends Component {
     }
   };
   handleFormReset =()=>{
+    this.props.form.resetFields();
     this.state.query ={
       page_rows:10,
       page_page:1,

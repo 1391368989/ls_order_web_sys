@@ -1,4 +1,4 @@
-import { selectChildOrder} from '../services/order';
+import { selectChildOrder,selectDictByType} from '../services/order';
 import { message } from 'antd';
 export default {
   namespace: 'childOrder',
@@ -6,10 +6,12 @@ export default {
     childOrderPage: {
       dataList:[],
     },
+    statusList:[]
   },
 
   effects: {
     *childOrderList({payload}, { call, put }) {
+      console.log(payload);
       const response = yield call(selectChildOrder,payload);
       yield put({
         type: 'savePage',

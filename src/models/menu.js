@@ -1,5 +1,5 @@
-import { getMenuData  } from '../services/api';
-import { getTree  } from '../services/order';
+/*import { getMenuData  } from '../services/api';*/
+import { getTree ,getMenuData } from '../services/order';
 
 export default {
   namespace: 'menu',
@@ -10,9 +10,14 @@ export default {
   effects: {
     *fetch({ payload }, { call, put }) {
       const response = yield call(getMenuData, payload);
+      let list = [];
+      if(response.data){
+        list = response.data.dataList
+      }
+
       yield put({
         type: 'queryList',
-        payload: Array.isArray(response) ? response : [],
+        payload: list,
       });
     },
     *fetchTree(_, { call, put }){
@@ -25,6 +30,7 @@ export default {
   },
   reducers: {
     queryList(state, action) {
+      console.log(action);
       return {
         ...state,
         list: action.payload,
