@@ -46,6 +46,11 @@ export default class ListView extends Component {
           <div>加载中</div>
         </div>
         }
+        {this.state.page.dataList.length<1 &&
+        <div style={{textAlign: 'center', padding: 20}}>
+          <div>没有更多订单了</div>
+        </div>
+        }
         {load === 3 &&
         <div style={{textAlign: 'center', padding: 20}}>
           <div>没有更多订单了</div>

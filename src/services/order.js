@@ -100,6 +100,100 @@ export async function selectChildOrder(query) {
     body:query
   });
 }
+/*
+ 商家审核拒绝该订单
+ * */
+export async function merchantRefuseChildOrder(query) {
+  return request('/order/order/merchantRefuseChildOrder', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 商家批量审核拒绝该订单
+ * */
+export async function merchantRefuseChildOrders(query) {
+  return request('/order/order/merchantRefuseChildOrders', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+/*
+ 商家审核同意该订单
+ * */
+export async function merchantAgreeChildOrder(query) {
+  return request('/order/order/merchantAgreeChildOrder', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 商家批量审核同意该订单
+ * */
+export async function merchantAgreeChildOrders(query) {
+  return request('/order/order/merchantAgreeChildOrders', {
+    method: 'POST',
+    body:query
+  });
+}
+
+/*
+ 商家撤销操作
+ * */
+export async function merchantReviewChildOrder(query) {
+  return request('/order/order/merchantReviewChildOrder', {
+    method: 'POST',
+    body:query
+  });
+}
+
+/*
+ 平台批量审核同意该订单
+ * */
+export async function platformAgreeChildOrders(query) {
+  return request('/order/order/platformAgreeChildOrders', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 平台审核同意该订单
+ * */
+export async function platformAgreeChildOrder(query) {
+  return request('/order/order/platformAgreeChildOrder', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 平台审核拒绝该订单
+ * */
+export async function platformRefuseChildOrder(query) {
+  return request('/order/order/platformRefuseChildOrder', {
+    method: 'POST',
+    body:query
+  });
+}
+
+/*
+ 平台审核批量拒绝该订单
+ * */
+export async function platformRefuseChildOrders(query) {
+  return request('/order/order/platformRefuseChildOrders', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 平台撤销操作
+ * */
+export async function reviewChildOrder(query) {
+  return request('/order/order/reviewChildOrder', {
+    method: 'POST',
+    body:query
+  });
+}
 
 /*
 * 获取用户菜单

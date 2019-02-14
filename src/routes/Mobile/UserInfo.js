@@ -69,11 +69,11 @@ export default class UserInfo extends PureComponent{
             companyId:this.state.companyId
           },
           callback: ()=>{
-            this.getOrderList();
-            this.getUserOrderList();
             this.setState({
               step:2
-            })
+            });
+            this.getOrderList();
+            this.getUserOrderList();
           }
         });
       }
@@ -90,7 +90,6 @@ export default class UserInfo extends PureComponent{
     });
   };
   back = () =>{
-    console.log('back');
     this.setState({
       step:1,
       load:1,
@@ -155,7 +154,6 @@ export default class UserInfo extends PureComponent{
     const { userOrderList } = mobile;
     if(userOrderList&&userOrderList.length>0){
       for(let i in userOrderList){
-
         if(userOrderList[i].orderId === item.id){
           const childOrderId = userOrderList[i].childOrderId;
           let obj = this.state.data;
@@ -171,7 +169,7 @@ export default class UserInfo extends PureComponent{
                 <div className={styles.left}>
                   <div>{item.orderName}</div>
                   <div>订单编号：{item.orderNo}</div>
-                  <div>商户来源：{item.orderPromulgator}</div>
+                  <div>提示信息：{item.orderRemake}</div>
                 </div>
                 <div className={styles.right}>
                   <Button onClick={()=> this.setUserOrder(item.id,true,userOrderList[i].childOrderId)}>取消订单</Button>
@@ -191,7 +189,7 @@ export default class UserInfo extends PureComponent{
         <div className={styles.left}>
           <div>{item.orderName}</div>
           <div>订单编号：{item.orderNo}</div>
-          <div>商户来源：{item.orderPromulgator}</div>
+          <div>提示信息：{item.orderRemake}</div>
         </div>
         <div className={styles.right}>
           <Button type="danger" onClick={()=> this.setUserOrder(item.id,false)}>立即抢单</Button>

@@ -198,6 +198,7 @@ export default class TableForm extends PureComponent {
         checkedKeys={this.state.checkedKeys}
         onSelect={this.onSelect}
         selectedKeys={this.state.selectedKeys}
+        checkStrictly ={true}
       >
         {this.renderTreeNodes(treeList)}
       </Tree>
@@ -234,7 +235,6 @@ export default class TableForm extends PureComponent {
     });
   };
   onSelect = (selectedKeys, info) => {
-    console.log('onSelect', info);
     this.setState({ selectedKeys });
   };
 
@@ -275,7 +275,7 @@ export default class TableForm extends PureComponent {
   };
   handleOk = () => {
     const { dispatch } = this.props;
-    if(this.state.checkedKeys.length<1){
+    if(this.state.checkedKeys.checked.length<1){
       message.error('所属权限组不能没有一个权限');
       return;
     }
@@ -283,7 +283,7 @@ export default class TableForm extends PureComponent {
       type: 'rule/insertRoleMenuBind',
       payload:{
         roleId:this.state.roleId,
-        menuIds:this.state.checkedKeys
+        menuIds:this.state.checkedKeys.checked
       }
     });
     this.setState({

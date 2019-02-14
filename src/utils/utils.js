@@ -212,3 +212,78 @@ export function isRepeat(obj,vlaue) {
   }
   return true
 }
+function getMenuData(menu) {
+  for(let i in menu){
+    if(menu[i].image){
+      menu[i].icon = menu[i].image;
+    }
+    menu[i].pathName = menu[i].path;
+    if(menu[i].type<2&&menu[i].menuVOS){
+      menu[i].children = getMenuData(menu[i].menuVOS)
+    }
+  }
+  return menu;
+}
+
+function formatter(data, parentPath = '/', parentAuthority) {
+  return data.map(item => {
+    let { path } = item;
+    if (!isUrl(path)) {
+      path = parentPath + item.path;
+    }
+    const result = {
+      ...item,
+      path,
+      authority: item.authority || parentAuthority,
+    };
+    if (item.children) {
+      result.children = formatter(item.children, `${parentPath}${item.path}/`, item.authority);
+    }
+    return result;
+  });
+}
+
+export function filterMenu(menu) {
+  let list = filterAuthority([],menu);
+  localStorage.setItem('authority', JSON.stringify(list));
+  let newMenu = getMenuData(menu);
+  return formatter(newMenu)
+}
+function filterAuthority(list,data) {
+  data.map(item=>{
+    if(item.type ===3){
+      list.push(item);
+    }
+    if (item.menuVOS) {
+      filterAuthority(list,item.menuVOS)
+    }
+    });
+  return list;
+}
+/*export function getAuthority(pathname) {
+  const arr = pathname.split('/');
+  const authority =  localStorage.getItem('authority');
+  const obj = JSON.parse(authority);
+  for(let i in obj){
+    let newObj = obj[i].children;
+
+    for(let j in newObj){
+      if(newObj[j].path === pathname){
+        return newObj[j].menuVOS
+      }
+    }
+  }
+
+  return [];
+}*/
+export function getAuthority(value) {
+  const authority =  localStorage.getItem('authority');
+  const data = JSON.parse(authority);
+  for(let i in data ){
+    if(data[i].path === value){
+      return true;
+    }
+  }
+  return false;
+}
+

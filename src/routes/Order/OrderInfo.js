@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import {getAuthority} from '../../utils/utils';
 import { connect } from 'dva';
 import {
   Row,
@@ -62,11 +63,11 @@ export default class OrderInfo extends Component {
   };
   handleSearch = e => {
     e.preventDefault();
-    const { dispatch, form } = this.props;
+    const { form } = this.props;
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
       if(values.date){
-        const date = [moment(values.date[0]._d).format('YYYY-MM-DD'),moment(values.date[1]._d).format('YYYY-MM-DD')];
+        const date = [moment(values.date[0]._d).format('YYYY-MM-DD'),moment(values.date[1]._d).format('YYYY-MM-DD HH:mm:ss')];
       }
    /*   values ={
         ...values,
@@ -135,11 +136,13 @@ export default class OrderInfo extends Component {
             <Button className={`${styles.submitButtons} ${styles.mr20}`} onClick={this.handleFormReset}>
               重置
             </Button>
+            {getAuthority('/order/order/insertOrder')&&
             <span className={`${styles.submitButtons} ${styles.mr20}`}>
               <Button type="primary" onClick={this.showModal}>
                 添加
               </Button>
             </span>
+            }
             <span className={styles.submitButtons}>
               <Button type="primary" >
                 批量上传
