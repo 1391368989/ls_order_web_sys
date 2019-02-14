@@ -6,9 +6,18 @@
 .box{
   padding:10px;
 }
+.title{background: #fff;padding-bottom: 10px;}
+.bodyBox{
+  background: #f2f2f2;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
 .listBox{
   padding:10px;
-  background: #f2f2f2;
 }
 .box :global(.login-form-forgot) {
   float: right;
@@ -43,21 +52,25 @@
 }
 .footer{
   position: fixed;
-  padding: 20px;
-  right: 0;
+  z-index: 100;
+  padding: 10px;
+  width:100%;
   left: 0;
   bottom: 0;
-}
 
+}
 .body{
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   bottom: 60px;
   right: 0;
-  overflow-y: auto;
+  overflow-x: hidden;
+  /*overflow-y:auto;//不能写,会和下面的产生冲突*/
+  -webkit-overflow-scrolling: touch;
 }
-body{ -webkit-overflow-scrolling:touch; } //webapp ios 兼容
+/*body{ -webkit-overflow-scrolling:touch; } //webapp ios 兼容*/
+
 
 .liBox{
   padding: 20px 10px;
@@ -70,5 +83,7 @@ body{ -webkit-overflow-scrolling:touch; } //webapp ios 兼容
   -webkit-align-items: center;
   -ms-flex-align: center;
   align-items: center;
+  padding: 10px 0;
 }
 .left{flex: 1;}
+

@@ -1,6 +1,7 @@
 import React from 'react';
-import {Route,Switch} from 'dva/router'
+import {Route,Switch,Redirect} from 'dva/router'
 import { getRoutes, getPageQuery, getQueryPath } from '../utils/utils';
+
 
 export default  class MobileLayout extends React.PureComponent{
   render(){
@@ -16,7 +17,7 @@ export default  class MobileLayout extends React.PureComponent{
          exact={item.exact}
          />
          ))}
-    {/*     <Redirect from="/user" to={getLoginPathWithRedirectPath()} />*/}
+         <Redirect from="/phone" to='/phone/info' />
          </Switch>
       </div>
     )

@@ -306,7 +306,6 @@ export function getMath(){
   return obj;
 }
 export function getOrderChartData(req, res, u){
-  console.log(req.body)
   let dataList = []
   for(let i = 1; i <= 31 ; i ++ ){
     let obj = getMath()

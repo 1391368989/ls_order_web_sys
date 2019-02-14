@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import { Link } from 'dva/router'
 import {getAuthority} from '../../utils/utils';
 import { connect } from 'dva';
 import {
@@ -15,7 +16,7 @@ import {
   DatePicker,
   Modal,
   message,
-  Badge,
+  Upload,
   Divider,
   Table
 } from 'antd';
@@ -56,6 +57,7 @@ export default class OrderInfo extends Component {
   }
   initPagination =()=>{
     const { dispatch } = this.props;
+    //是否拥有管理员权限
     dispatch({
       type: 'order/orderList',
       payload: this.state.query
@@ -75,6 +77,7 @@ export default class OrderInfo extends Component {
       const query = this.state.query;
       this.state.query ={
         ...query,
+        page_page:1,
         search_orderName_LIKE:values.orderName,
         search_orderPromulgator_LIKE:values.orderPromulgator,
         search_orderStatus_EQ:values.orderstatus,
@@ -90,12 +93,30 @@ export default class OrderInfo extends Component {
       page_rows:10,
       page_page:1,
     };
-    this.initPagination()
+   // this.initPagination()
   };
   renderSimpleForm = ()=> {
     const { form, order } = this.props;
     const {statusList} = order;
     const { getFieldDecorator } = form;
+    const props = {
+      name: 'excelFile',
+      action: '/order/order/insertOrders',
+      onChange(info) {
+       /* if (info.file.status !== 'uploading') {
+          console.log(info.file, info.fileList);
+        }*/
+        if (info.file.status === 'done') {
+          if(info.fileList[0].response.flag === 0){
+            message.success(`批量添加成功`);
+          }else {
+            message.error(`${info.fileList[0].response.msg}`);
+          }
+        } else if (info.file.status === 'error') {
+          message.error(`${info.file.name} 上传失败.`);
+        }
+      },
+    };
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={24}>
@@ -143,21 +164,41 @@ export default class OrderInfo extends Component {
               </Button>
             </span>
             }
+            {getAuthority('/order/order/insertOrders')&&
             <span className={styles.submitButtons}>
-              <Button type="primary" >
-                批量上传
+            <Upload {...props}>
+              <Button>
+                <Icon type="upload" />批量上传
               </Button>
+            </Upload>
             </span>
+            }
           </Col>
         </Row>
       </Form>
     );
   };
+  //insertOrders
+  insertOrders =(file)=>{
+    return;
+    if(file){
+      this.props.dispatch({
+        type:'order/insertOrders',
+        payload:file,
+        callback:()=>{
+
+        }
+      })
+    }
+  };
+
   toSetOrder=(item)=>{
     this.setState({
       data:item,
     });
-    this.showModal();
+    this.setState({
+      visible:true,
+    })
   };
   onChange = (e)=>{
     const query = this.state.query;
@@ -178,6 +219,37 @@ export default class OrderInfo extends Component {
       callback:this.initPagination
     });
   };
+  deleteOrder =(orderId)=>{
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'order/operationDeleteOrder',
+      payload: {
+        orderId,
+      },
+      callback:this.initPagination
+    });
+  };
+  finishOrder =(orderId)=>{
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'order/operationFinishOrder',
+      payload: {
+        orderId,
+      },
+      callback:this.initPagination
+    });
+  };
+  accomplishOrder =(orderId)=>{
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'order/operationAccomplishOrder',
+      payload: {
+        orderId,
+      },
+      callback:this.initPagination
+    });
+  };
+  //operationDeleteOrder
   renderOrderTable(){
     const {loading ,order} = this.props;
     const {orderPage, statusList} = order;
@@ -197,72 +269,98 @@ export default class OrderInfo extends Component {
     }
     const columns = [
       {
-      title: '编号',
-      dataIndex: 'orderNo',
-      key: 'orderNo',
+        title: '序号',
+        dataIndex: 'id',
+        key: 'id',
+        width: 140,
     }, {
-      title: '商户',
-      dataIndex: 'orderPromulgator',
-      key: 'orderPromulgator',
-    }, {
+        title: '编号',
+        dataIndex: 'orderNo',
+        key: 'orderNo',
+        width: 200,
+    },  {
       title: '订单名称',
       dataIndex: 'orderName',
       key: 'orderName',
+        width: 200,
     },
+      {
+        title: '商户',
+        dataIndex: 'orderPromulgator',
+        key: 'orderPromulgator',
+        width: 180,
+      },
       {
         title: '商家单价',
         dataIndex: 'orderPrice',
         key: 'orderPrice',
-      }, {
+        width: 120,
+      },
+      {
+        title: '代理商单价',
+        dataIndex: 'orderAgencyPrice',
+        key: 'orderAgencyPrice',
+        width: 140,
+      },
+      {
         title: '计划单量',
         dataIndex: 'orderAllNum',
         key: 'orderAllNum',
-      },{
-        title: '代理商单价',
-        dataIndex: 'orderAgencyAllPrice',
-        key: 'orderAgencyAllPrice',
+        width: 120,
       },{
         title: '实际单数',
-        dataIndex: 'orderNum',
-        key: 'orderNum',
+        dataIndex: 'orderRealNum',
+        key: 'orderRealNum',
+        width: 120,
       },{
         title: '预计金额',
         dataIndex: 'orderPredictPrice',
         key: 'orderPredictPrice',
+        width: 120,
       },{
         title: '实际金额',
-        dataIndex: 'accountPeriod6',
-        key: 'accountPeriod6',
+        dataIndex: 'orderRealPrice',
+        key: 'orderRealPrice',
+        width: 120,
       },{
-        title: '创建用户',
-        dataIndex: 'orderCreateUserLabel',
-        key: 'orderCreateUserLabel',
+        title: '提示信息',
+        dataIndex: 'orderRemake',
+        key: 'orderRemake',
+        width: 180,
       },{
         title: '生效时间',
         dataIndex: 'orderEffectiveDateLabel',
         key: 'orderEffectiveDateLabel',
+        width: 180,
       },
-      {
-        title: '修改用户',
-        dataIndex: 'orderUpdateUserLabel',
-        key: 'orderUpdateUserLabel',
-      },{
-        title: '修改时间',
-        dataIndex: 'orderUpdateDateLabel',
-        key: 'orderUpdateDateLabel',
+    {
+        title: '订单类型',
+        render:(text, record) =>{
+          if(record.orderType === 1){
+            return <span>不限商家</span>;
+          }else{
+            return(
+              <div>
+                {(getAuthority('/order/order/insertOrder'))&&
+                <span>
+                  <a href='javascript:;' onClick={()=>this.showCompanyModal(record.id)}>管理商家</a>
+                </span>
+                }
+              </div>
+              )
+          }
+        },
+        width: 120,
       },
       {
         title: '状态',
         dataIndex: 'orderStatusLabel',
         key: 'orderStatusLabel',
-    /*    filters: filters,
-        onFilter: (value, record) => record.status.toString() === value,
-        render(val) {
-          return <Badge status={statusList[val].code} text={statusList[val].label} />;
-        },*/
+        width: 240,
       },
       {
         title: '操作',
+        fixed: 'right',
         render: (text, record) => {
           if(record.orderStatus === 4 ){
             return (
@@ -271,22 +369,77 @@ export default class OrderInfo extends Component {
               </div>
             );
           }
+          if(record.orderStatus === 0 ){
+            return (
+              <div>
+                <span>已删除</span>
+              </div>
+            );
+          }
+          if(record.orderStatus === 2 ){
+            return (
+              <div>
+                {(getAuthority('/order/order/deleteOrder')) &&
+                <Popconfirm title="是否要核算当前订单,核算后不可返回？" onConfirm={() => this.finishOrder(record.id)}>
+                  <a>核算</a>
+                </Popconfirm>
+                }
+                <Divider type="vertical" />
+                <Link to={'/order/to-be-verified?id='+record.id}>查看</Link>
+              </div>
+            );
+          }
+          if(record.orderStatus === 1 ){
+            return (
+              <div>
+                {getAuthority('/order/order/interruptOrder')&&
+                <Popconfirm title="是否要下架当前订单,下架后不可返回？"  onConfirm={() => this.interruptOrder(record.id)}>
+                  <a style={{color:'red'}}>下架</a>
+                </Popconfirm>
+                }
+                {getAuthority('/order/order/updateOrder')&&
+                  <span>
+                    <Divider type="vertical" />
+                    <a href='javascript:;'onClick={()=>this.toSetOrder(record)}>编辑</a>
+                  </span>
+                }
+
+                {(getAuthority('/order/order/deleteOrder')) &&
+                <Popconfirm title="是否要停止订单填写，订单进入审核阶段？" onConfirm={() => this.accomplishOrder(record.id)}>
+                  <Divider type="vertical" />
+                  <a>结算</a>
+                </Popconfirm>
+                }
+                {(getAuthority('/order/order/deleteOrder')) &&
+                <Popconfirm title="是否要删除当前订单,删除后不可返回？" onConfirm={() => this.deleteOrder(record.id)}>
+                  <Divider type="vertical" />
+                  <a>删除</a>
+                  </Popconfirm>
+                }
+                <Divider type="vertical" />
+                <Link to={'/order/to-be-verified?id='+record.id}>查看</Link>
+              </div>
+            );
+          }
           return (
-            <div>
-              <Popconfirm title="是否要下架当前订单,下架后不可返回？"  onConfirm={() => this.interruptOrder(record.id)}>
-                <a style={{color:'red'}}>下架</a>
-              </Popconfirm>
-              <Divider type="vertical" />
-              <a href='javascript:;'onClick={()=>this.toSetOrder(record)}>编辑</a>
-              <Divider type="vertical" />
-              <a href='javascript:;' onClick={()=>this.showCompanyModal(record.id)}>管理商家</a>
-            </div>
+           <div>
+             <Link to={'/order/to-be-verified?id='+record.id}>查看</Link>
+           </div>
           );
         },
+        width: 240,
       }
     ];
     return(
-      <Table dataSource={orderPage.dataList} columns={columns} pagination={paginationProps} loading={loading} rowKey={record => record.id} onChange={this.onChange}/>
+      <Table
+        dataSource={orderPage.dataList}
+        columns={columns}
+        pagination={paginationProps}
+        loading={loading}
+        rowKey={record => record.id}
+        onChange={this.onChange}
+        scroll={{ x: 1700}}
+      />
     )
   };
   handleOk=()=>{
@@ -300,6 +453,9 @@ export default class OrderInfo extends Component {
     })
   };
   showModal=()=>{
+    this.setState({
+      data:null,
+    });
     this.setState({
       visible:true,
     })

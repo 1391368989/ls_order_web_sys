@@ -26,7 +26,7 @@ export default {
     *pagingOrder({payload ,callback},{ call, put }){
       const response = yield call(getOrderList,payload);
       if(response.flag === 0){
-        if (callback && typeof callback === 'function') callback();
+        if (callback && typeof callback === 'function') callback(response);
         yield put({
           type: 'saveOrderList',
           payload: response,
@@ -52,9 +52,10 @@ export default {
         message.success(response.msg);
       }
     },
-    *userOwnedOrder({payload},{ call, put }){
+    *userOwnedOrder({payload,callback},{ call, put }){
       const response = yield call(userOwnedOrder,payload);
       if(response.data&&response.flag === 0){
+        if (callback && typeof callback === 'function') callback(response);
         yield put({
           type: 'saveUserOrderList',
           payload: response,
@@ -62,9 +63,7 @@ export default {
       }
     },
     *submitData({payload,callback},{ call }){
-      console.log(payload)
       const response = yield call(updateChildOrderRemake,payload);
-      console.log(response)
       if (response.flag === 0) {
         message.success('成功提交订单!');
         if (callback && typeof callback === 'function') callback();
@@ -72,7 +71,6 @@ export default {
         message.success(response.msg);
       }
     },
-
   },
   reducers: {
     saveOrderList(state, action) {

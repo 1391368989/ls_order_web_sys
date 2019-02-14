@@ -32,7 +32,7 @@ const FormItem = Form.Item;
 export default class MePass extends Component {
 
   handleSearch(e){
-    console.log(e)
+
   }
   render() {
     const { form } = this.props;

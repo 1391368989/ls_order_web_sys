@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
+import  moment  from 'moment';
 import {
   Row,
   Col,
@@ -12,8 +13,8 @@ import {
 import styles from './index.less';
 
 const orderTypeList=[
-  {value:0,title:'不限'},
-  {value:1,title:'有限'},
+  {value:1,title:'不限'},
+  {value:2,title:'有限'},
 ];
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -24,7 +25,6 @@ const FormItem = Form.Item;
 }))
 export default class AddOrder extends Component {
   state ={
-
   };
   constructor(props) {
     super(props);
@@ -46,7 +46,7 @@ export default class AddOrder extends Component {
         orderAllNum:data.orderAllNum,
         orderAgencyPrice:data.orderAgencyPrice,
         orderType:data.orderType,
-        orderEffcientDate:data.orderEffcientDate,
+        orderEffcientDate:moment(data.orderCreateDateLabel,'YYYY-MM-DD HH-mm-ss'),
         cityIdLabel:data.cityIdLabel,
         orderRemake:data.orderRemake
       });
@@ -61,16 +61,20 @@ export default class AddOrder extends Component {
     const { dispatch, form } = this.props;
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
+      if(this.props.data!==null){
+        values ={
+          ...values,
+          id:this.props.data.id
+        }
+      }
       dispatch({
         type: 'order/fetchAdd',
-        payload: {
-          values,
-        },
+        payload: values
       });
     });
   };
   render(){
-    const { form } = this.props;
+    const { form, loading } = this.props;
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: {
@@ -174,7 +178,7 @@ export default class AddOrder extends Component {
                 {getFieldDecorator('orderRemake')(<Input placeholder="请输入备注"  style={style}/>)}
               </FormItem>
               <FormItem {...tailFormItemLayout}>
-                <Button type="primary" htmlType="submit">提交</Button>
+                <Button type="primary" htmlType="submit" loading={loading}>提交</Button>
                 <Button style={{ marginLeft: 20 }} onClick={this.handleReset}>重置</Button>
               </FormItem>
             </Col>

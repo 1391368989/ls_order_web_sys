@@ -4,7 +4,7 @@ import { Form, Button, Row, Col,Icon } from 'antd';
 import omit from 'omit.js';
 import styles from './index.less';
 import map from './map';
-import {host} from '../../utils/utils';
+import {host} from '../../utils/utils'
 
 const FormItem = Form.Item;
 function generator({ defaultProps, defaultRules, type }) {
@@ -19,8 +19,8 @@ function generator({ defaultProps, defaultRules, type }) {
         super(props);
         this.state = {
           count: 0,
-          iconCode:host+'/createSecurityCode?a=0',
           codeQuery:0,
+          iconCode:''
         };
       }
 
@@ -30,6 +30,7 @@ function generator({ defaultProps, defaultRules, type }) {
         if (updateActive) {
           updateActive(name);
         }
+        this.onGetImgCode()
       }
 
       componentWillUnmount() {
@@ -51,14 +52,15 @@ function generator({ defaultProps, defaultRules, type }) {
         }, 1000);
       };
       onGetImgCode = () =>{
-        const { onGetImgCode } = this.props;
+      /*  const { onGetImgCode } = this.props;
         if (onGetImgCode) {
           onGetImgCode();
-        }
-        /*this.state.codeQuery = ++this.state.codeQuery;
+        }*/
+        /* obj.src = host + "/sys/getVerify?"+Math.random();
+         this.state.codeQuery = ++this.state.codeQuery;*/
         this.setState({
-          iconCode:host+'/createSecurityCode?a='+this.state.codeQuery
-        })*/
+          iconCode:host+'/getVerify?a='+Math.random()
+        })
       };
       render() {
         const { form } = this.context;
@@ -110,10 +112,9 @@ function generator({ defaultProps, defaultRules, type }) {
                   )}
                 </Col>
                 <Col span={14}>
-                  <img src={imgSrc} height={40} onClick={this.onGetImgCode} style={{verticalAlign:'top'}}/>
+                  <img src={this.state.iconCode} height={40} onClick={this.onGetImgCode} style={{verticalAlign:'top'}}/>
                   <span style={{fontSize:14,marginLeft:10,cursor:'pointer'}} onClick={this.onGetImgCode}>
                     <Icon type="reload"/>
-                       <a>点击刷新</a>
                   </span>
                 </Col>
               </Row>

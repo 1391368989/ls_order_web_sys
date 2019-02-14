@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import {getAuthority} from '../../utils/utils';
+import {getAuthority,getQuery, localhost} from '../../utils/utils';
 import moment from 'moment';
 import { connect } from 'dva';
 import {
   Row,
   Col,
-  Card,
+  Popconfirm,
   Form,
   Input,
   Icon,
@@ -37,21 +37,31 @@ export default class OrderInfo extends Component {
     selectedRowKeys: [], // Check here to configure the default column
     loading: false,
     visible: false,
-    value: 1,
+
+    visibleDownload:false,
+    date:new Date(),
+
+    value: 1, //审批是与否
     msg:null,
     query:{
       page_rows:10,
       page_page:1,
+      search_childOrderCreateDate_SORT: "DESC",
     }
   };
   componentDidMount() {
     const { dispatch } = this.props;
+    const obj = getQuery(this.props.location.search);
+    if(obj){
+      this.state.query.search_parentOrderId_EQ = obj.id;
+    }
     dispatch({
       type: 'childOrder/fetch',
       payload: {
         type: "childorderstatus"
       },
     });
+    this.initPagination()
   }
   handleFormReset =()=>{
     this.props.form.resetFields();
@@ -85,6 +95,36 @@ export default class OrderInfo extends Component {
       this.initPagination()
     });
   };
+  handleDownload=()=>{
+    //显示下载弹框
+    this.setState({
+      visibleDownload:true,
+    })
+  };
+  onChangeDate =(e)=>{
+    this.state.date = moment(e,'YYYY/MM/DD')
+  };
+  handleDownloadOk = ()=>{
+    this.setState({
+      visibleDownload: false,
+    });
+    this.downloadExport();
+  };
+  handleDownloadCancel = ()=>{
+    this.setState({
+      visibleDownload: false,
+    });
+  };
+  downloadExport = () =>{
+    const child_order_update_user = moment(this.state.date,'YYYY/MM/DD');
+    /*dispatch({
+      type:'order/downloadExport',
+      payload:{
+        child_order_update_user,
+      }
+    })*/
+    window.location.href=localhost+"/order/order/export?child_order_update_user="+child_order_update_user;
+  };
   renderSimpleForm = ()=> {
     const { form, childOrder} = this.props;
     const {statusList} = childOrder;
@@ -92,27 +132,37 @@ export default class OrderInfo extends Component {
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={24}>
-          <Col xs={24}  xl={12} xxl={6}>
-            <FormItem label="订单编号">
-              {getFieldDecorator('search_childOrderNo_EQ')(<Input placeholder="请输入订单编号" />)}
+          <Col xs={24}  xl={12} xxl={8}>
+            <FormItem label="主订单名称">
+              {getFieldDecorator('search_parentOrderName_LIKE')(<Input placeholder="请输入主订单名称" />)}
             </FormItem>
           </Col>
-          <Col xs={24}  xl={12} xxl={6}>
-            <FormItem label="网点/代理商名称">
+          <Col xs={24}  xl={12} xxl={8}>
+            <FormItem label="订单编号">
+              {getFieldDecorator('search_childOrderNo_EQ')(<Input placeholder="请输入子订单编号" />)}
+            </FormItem>
+          </Col>
+          <Col xs={24}  xl={12} xxl={8}>
+            <FormItem label="网点/代理商">
               {getFieldDecorator('search_name_LIKE')(<Input placeholder="请输入网点名称" />)}
             </FormItem>
           </Col>
-          <Col xs={24}  xl={12} xxl={6}>
+          <Col xs={24}  xl={12} xxl={8}>
             <FormItem label="商户名称">
               {getFieldDecorator('search_orderPromulgator_LIKE')(<Input placeholder="请输入网点名称" />)}
             </FormItem>
           </Col>
-          <Col xs={24}  xl={12} xxl={6}>
+          <Col xs={24}  xl={12} xxl={8}>
+            <FormItem label="主订单序号">
+              {getFieldDecorator('search_parentOrderId_EQ')(<Input placeholder="请输入主订单序号" />)}
+            </FormItem>
+          </Col>
+          <Col xs={24}  xl={12} xxl={8}>
             <FormItem label="手机号">
               {getFieldDecorator('search_userPhone_LIKE')(<Input placeholder="姓名/手机号" />)}
             </FormItem>
           </Col>
-          <Col xs={24}  xl={12} xxl={6}>
+          <Col xs={24}  xl={12} xxl={8}>
             <FormItem label="订单状态">
               {getFieldDecorator('search_childOrderStatus_EQ')(
                 <Select placeholder="请选择订单状态">
@@ -123,7 +173,7 @@ export default class OrderInfo extends Component {
               }
             </FormItem>
           </Col>
-          <Col xs={24}  xl={12} xxl={9}>
+          <Col xs={24}  xl={12} xxl={8}>
             <FormItem label="查询时间">
               {getFieldDecorator('date')(
                 <RangePicker showTime format="YYYY-MM-DD HH:mm:ss"/>
@@ -137,6 +187,9 @@ export default class OrderInfo extends Component {
               </Button>
                <Button  style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
                 重置
+              </Button>
+               <Button  style={{ marginLeft: 8 }} onClick={this.handleDownload}>
+                下载Export
               </Button>
             </span>
           </Col>
@@ -169,6 +222,7 @@ export default class OrderInfo extends Component {
       this.state.childOrder = item;
       this.state.childOrderId = item.id;
       this.state.companyId = item.childOrderCompanyId;
+      this.state.order = item;
     }else{
       this.state.companyId = this.props.childOrder.childOrderPage.dataList[0].childOrderCompanyId;
     }
@@ -177,30 +231,64 @@ export default class OrderInfo extends Component {
       msg:null,
     });
   };
-
+  /*
+   * statusType
+   * status  1 = 商家撤回该订单,2=平台撤回该订单
+   * */
+  recall =(item)=>{
+    const statusType = item.childOrderStatus;
+    let type = 1;
+    if(statusType == 2||statusType == 7){
+      type = 2;
+    }
+    this.props.dispatch({
+      type:'childOrder/revoke',
+      payload:{
+        query:{
+          "companyId": item.childOrderCompanyId,
+          "orderId": item.id,
+        },
+        type:type
+      },
+      callback:()=>{
+        this.initPagination();
+      }
+    })
+  };
   /*
   * status  1=平台审核同意该订单,2=平台审核不同意该订单，3=商家审核通过，4=商家审核不通过订单
+  * value 2 = 审批不通过 1 = 审批通过
+  * loading true = 批量操作  false = 单个操作
   * */
   handleOk = () => {
     let status;
-    if(this.state.value ==2 ){
-      if(this.state.msg === null){
-        message.error('原由不能为空');
+    const value = this.state.value;
+    if(value ==2 && this.state.msg === null){
+      message.error('原由不能为空');
+      return
+    }
+    if(this.state.loading){
+      if(this.state.selectedRows[0].childOrderStatus == 6){
+        status = value ==2?4:3
+      }else if(this.state.selectedRows[0].childOrderStatus == 5){
+        status = value ==2?2:1
+      }else{
+        message.error('当前订单状态不能批量处理');
+        this.state.loading = false;
         return
       }
-      if(this.state.selectedRows[0].childOrderStatus == 6){
-        status = 4
+    }else {
+      if(this.state.order.childOrderStatus ==6){
+        status = value ==2?4:3
+      }else if(this.state.order.childOrderStatus ==5){
+        status = value ==2?2:1
       }else{
-        status = 2
-      }
-    }else{
-      if(this.state.selectedRows[0].childOrderStatus == 6){
-        status = 3
-      }else{
-        status = 1
+        message.error('当前订单状态没有审核操作');
+        return
       }
     }
     if(this.state.loading){
+      //批量
       this.props.dispatch({
         type:'childOrder/batchOperation',
         payload:{
@@ -299,9 +387,6 @@ export default class OrderInfo extends Component {
       //如果有平台审核订单权限
       disabled = false;
     }
-    if(status==2||status==0&&getAuthority('/order/order/platformAgreeChildOrder')){
-      disabled = false;
-    }
     return({
       disabled: disabled, // Column configuration not to be checked
       name: record.childOrderNo,
@@ -350,7 +435,7 @@ export default class OrderInfo extends Component {
         dataIndex: 'orderPromulgator',
         key: 'orderPromulgator',
       },{
-        title: '订单名称',
+        title: '主订单名称',
         dataIndex: 'orderName',
         key: 'orderName',
       },{
@@ -385,23 +470,45 @@ export default class OrderInfo extends Component {
               </div>
             );
           }
-          if(status==5&&getAuthority('/order/order/platformAgreeChildOrder')){
-            //如果有平台审核订单权限
-            return (
-              <div>
+          const role_1 =  getAuthority('/order/order/platformAgreeChildOrder');
+          const role_2 =  getAuthority('/order/order/merchantReviewChildOrder');
+          if(status==5){
+            if(role_1){
+              //如果有平台审核订单权限
+              return (
                 <div>
                   <a href='javascript:;' onClick={()=>this.showModal(record)}>审核</a>
+                  <Divider type="vertical" />
+                  <Popconfirm title="是否将当前订单撤回到上一次的状态？" onConfirm={() => this.recall(record)}>
+                    <a href="#">撤回</a>
+                  </Popconfirm>
                 </div>
+              );
+            }else{
+              return (
+                <div>
+                  <Popconfirm title="是否将当前订单撤回到上一次的状态？" onConfirm={() => this.recall(record)}>
+                    <a href="#">撤回</a>
+                  </Popconfirm>
+                </div>
+              );
+            }
+          }
+          if(status==7||status==2&&getAuthority('/order/order/reviewChildOrder')){
+            return (
+              <div>
+                <Popconfirm title="是否将当前订单撤回到上一次的状态？" onConfirm={() => this.recall(record)}>
+                  <a href="#">撤回</a>
+                </Popconfirm>
               </div>
             );
           }
-
-          if(status==2||status==0&&getAuthority('/order/order/platformAgreeChildOrder')){
+          if(status==0&&getAuthority('/order/order/merchantReviewChildOrder')){
             return (
               <div>
-                <div>
-                  <a href='javascript:;' onClick={()=>this.showModal(record)}>撤回</a>
-                </div>
+                <Popconfirm title="是否将当前订单撤回到上一次的状态？" onConfirm={() => this.recall(record)}>
+                  <a href="#">撤回</a>
+                </Popconfirm>
               </div>
             );
           }
@@ -420,7 +527,6 @@ export default class OrderInfo extends Component {
       selectedRowKeys,
       onChange: this.onSelectChange,
       getCheckboxProps: record => this.getCheckboxProps(record),
-
     };
     const hasSelected = selectedRowKeys.length > 0;
     return(
@@ -469,18 +575,26 @@ export default class OrderInfo extends Component {
           </div>
           }
         </Modal>
+
+        <Modal
+          title="下载待核实订单表格"
+          visible={this.state.visibleDownload}
+          onOk={this.handleDownloadOk}
+          onCancel={this.handleDownloadCancel}
+          destroyOnClose={true}
+        >
+          <div>
+            <span className={styles.mar20}>时间节点</span>
+            <DatePicker  defaultValue={moment(this.state.date, 'YYYY/MM/DD')} onChange={this.onChangeDate} />
+          </div>
+        {/*  <div className={`${styles.mt20} ${styles.textc} ${styles.pt20}`}>
+            <Button type="primary" icon="download" onClick={this.downloadExport}>Download</Button>
+          </div>*/}
+        </Modal>
       </div>
 
     )
   };
-/*  renderRadio =()=>{
-    return (
-      <div>
-        <Radio value={1} name="radiogroup" onChange={this.onChange()}>合格</Radio>
-        <Radio value={2} name="radiogroup" onChange={this.onChange()}>不合格</Radio>
-      </div>
-      )
-  };*/
   render() {
     return (
       <PageHeaderLayout title="订单列表">

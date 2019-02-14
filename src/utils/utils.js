@@ -1,6 +1,13 @@
 import moment from 'moment';
 import { parse, stringify } from 'qs';
 import { message } from 'antd';
+
+export const host = 'http://192.168.1.84:8080';
+/*export const localhost = 'http://192.168.1.83:85';*/
+
+/*export const host = 'http://172.16.0.201:8080';*/
+export const localhost = 'http://localhost:8000';
+
 export function fixedZero(val) {
   return val * 1 < 10 ? `0${val}` : val;
 }
@@ -80,13 +87,16 @@ function accMul(arg1, arg2) {
   return (Number(s1.replace('.', '')) * Number(s2.replace('.', ''))) / 10 ** m;
 }
 export function getQuery(search) {
+  if(!search) return false;
   let str = search.replace('?','');
   let arr = str.split('&');
   let obj = {};
   for(let i=0; i<arr.length;i++ ){
     let new_arr = arr[i].split('=');
-    const newStr = decodeURI(new_arr[1]);
-    obj[new_arr[0]] = newStr
+    if(new_arr.length>1&&new_arr[1] !== ''){
+      const newStr = decodeURI(new_arr[1]);
+      obj[new_arr[0]] = newStr
+    }
   }
   return obj
 }
@@ -202,15 +212,14 @@ const reg = /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(?::\d+)?|(
 export function isUrl(path) {
   return reg.test(path);
 }
-export const host = 'http://112.27.113.51:9040';
 
 export function isRepeat(obj,vlaue) {
   for(let j in obj ){
-    if(j === vlaue){
-      return false
+    if( parseInt(j) === vlaue){
+      return true
     }
   }
-  return true
+  return false
 }
 function getMenuData(menu) {
   for(let i in menu){
@@ -286,4 +295,96 @@ export function getAuthority(value) {
   }
   return false;
 }
+//手机号验证规则
+export const mobilePattern    =/^(((13[0-9])|(14[5-7])|(15[0-9])|(17[0-9])|(18[0-9]))+\d{8})$/;
+//密码验证规则
+/*export const passwordPattern  =/^(?![0-9]+$)(?![a-zA-Z]+$)[a-zA-Z\d]{6,16}$/;*/
+export const passwordPattern  =/ ^[a-zA-Z0-9]{6,12}$/;
+//身份证验证规则
+export const idPattern = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+//银行卡号验证规则
+export const bankCodePattern =/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+/*
+返回true 验证通过
+* */
+export function validate_mobile (mobile){
+  const mobilePattern={mobile: /^(((13[0-9])|(14[5-7])|(15[0-9])|(17[0-9])|(18[0-9]))+\d{8})$/ };
+  if(!mobilePattern.mobile.test(mobile)){
+    return false;
+  }
+  return true;
+}
+//密码验证规则
+/*
+ 返回true 验证通过
+ * */
+export function validate_password(password){
+  const passwordPattern=/^(?![0-9]+$)(?![a-zA-Z]+$)[a-zA-Z\d]{6,16}$/;
+  if(!passwordPattern.test(password)){
+    return false;
+  }
+  return true;
+}
 
+//身份证证号码验证
+/*
+ 返回true 验证通过
+ * */
+export function validate_passwords(card){
+  const reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+  if(reg.test(card) === false) {
+    return  false;
+  }
+  return true;
+}
+
+//银行号码验证
+/*
+ 返回true 验证通过
+ * */
+export function validate_BankCard(cardId){
+  const reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+  if(reg.test(cardId) === false) {
+    return  false;
+  }
+  return true;
+}
+
+
+export function formatBankNo (BankNo){
+  if (BankNo.value === "") return;
+  let account = (BankNo.value).toString();
+  account = account.substring(0,22); /*帐号的总数, 包括空格在内 */
+  if (account.match (".[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{7}") === null){
+    /* 对照格式 */
+    if (account.match (".[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{7}|" + ".[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{7}|" +
+        ".[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{7}|" + ".[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{7}") === null){
+      let accountChar,accountNumeric = accountChar = "", i;
+      for (i=0;i<account.length;i++){
+        accountChar = account.substr (i,1);
+        if (!isNaN (accountChar) && (accountChar !== " ")) accountNumeric = accountNumeric + accountChar;
+      }
+      account = "";
+      for (i=0;i<accountNumeric.length;i++){  /* 可将以下空格改为-,效果也不错 */
+        if (i === 4) account = account + " "; /* 帐号第四位数后加空格 */
+        if (i === 8) account = account + " "; /* 帐号第八位数后加空格 */
+        if (i === 12) account = account + " ";/* 帐号第十二位后数后加空格 */
+        account = account + accountNumeric.substr (i,1)
+      }
+    }
+  }
+  else
+  {
+    account = " " + account.substring (1,5) + " " + account.substring (6,10) + " " + account.substring (14,18) + "-" + account.substring(18,25);
+  }
+  if (account !== BankNo.value) BankNo.value = account;
+}
+
+//重置
+export function formReset (this_){
+  this_.props.form.resetFields();
+  this_.state.query ={
+    page_rows:10,
+    page_page:1,
+  };
+}

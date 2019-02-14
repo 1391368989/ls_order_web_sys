@@ -59,6 +59,7 @@ export default class TableForm extends PureComponent {
       // 进入编辑状态时保存原始数据
       if (!target.editable) {
         this.cacheOriginData[key] = { ...target };
+
       }
       target.editable = !target.editable;
       this.setState({ data: newData });
@@ -275,8 +276,10 @@ export default class TableForm extends PureComponent {
   };
   handleOk = () => {
     const { dispatch } = this.props;
-    if(this.state.checkedKeys.checked.length<1){
-      message.error('所属权限组不能没有一个权限');
+    if(this.state.checkedKeys.checked === undefined||this.state.checkedKeys.checked.length<1){
+      this.setState({
+        visible: false,
+      });
       return;
     }
     dispatch({
@@ -489,14 +492,13 @@ export default class TableForm extends PureComponent {
     ];
     const {  data } = this.state;
     const { loading} = this.props;
-
     return (
       <Fragment>
         <Table
           loading={loading}
           columns={columns}
           dataSource={data}
-          pagination={false}
+          pagination={true}
           rowKey={record => record.id}
           rowClassName={record => {
             return record.editable ? styles.editable : '';

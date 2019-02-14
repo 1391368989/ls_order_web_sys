@@ -1,9 +1,22 @@
-import { getOrder,selectDictByType,addOrder,selectCompany, insertOrderCompanyBind,selectOrderIdByOrderId ,deleteOrderCompanyBind, interruptOrder} from '../services/order';
+import { getOrder,selectDictByType,addOrder,selectCompany, insertOrderCompanyBind,selectOrderIdByOrderId ,deleteOrderCompanyBind, interruptOrder,
+  insertOrders,
+  getOrderByCompany,
+  finishOrder,
+  deleteOrder,
+  accomplishOrder,
+  updateOrder,
+  accountShop,
+  downloadExport,
+} from '../services/order';
 import { message } from 'antd';
+import {getAuthority} from '../utils/utils';
 export default {
   namespace: 'order',
   state: {
     orderPage: {
+      dataList:[],
+    },
+    orderAccountShopPage: {
       dataList:[],
     },
     loading:false,
@@ -16,7 +29,12 @@ export default {
 
   effects: {
     *orderList({payload}, { call, put }) {
-      const response = yield call(getOrder,payload);
+      let response ;
+      if(getAuthority('/order/order/selectOrder')){
+        response = yield call(getOrder,payload);
+      }else{
+        response = yield call(getOrderByCompany,payload);
+      }
       yield put({
         type: 'savePage',
         payload: response,
@@ -37,11 +55,30 @@ export default {
       });
     },
     *fetchAdd({payload},{call}){
-      const response = yield call(addOrder,payload.values);
-      if(response.flag === 0){
-        message.success('添加成功');
+      let response;
+      if(payload.id){
+        response = yield call(updateOrder,payload);
       }else{
-        message.success(response.msg);
+        response = yield call(addOrder,payload);
+      }
+
+      if(response.flag === 0){
+        if(payload.id){
+          message.success('修改成功');
+        }else{
+          message.success('添加成功');
+        }
+      }else{
+        message.error(response.msg);
+      }
+    },
+    *insertOrders({payload,callback},{call}){
+      const response = yield call(insertOrders,payload);
+      if(response.flag === 0){
+        message.success('批量添加成功');
+        if(callback)callback();
+      }else{
+        message.error(response.msg);
       }
     },
     *companyBind({payload},{call,put}){
@@ -53,7 +90,7 @@ export default {
           payload: payload,
         });
       }else{
-        message.success(response.msg);
+        message.error(response.msg);
       }
     },
     *removeCompanyBind({payload},{call,put}){
@@ -66,7 +103,7 @@ export default {
         });
 
       }else{
-        message.success(response.msg);
+        message.error(response.msg);
       }
     },
     *selectOrderIdByOrderId({payload},{call, put}){
@@ -82,7 +119,61 @@ export default {
         message.success('订单下架成功');
         if(callback){callback()}
       }else{
-        message.success(response.msg);
+        message.error(response.msg);
+      }
+    },
+    *operationFinishOrder({payload, callback},{call}){
+      const response = yield call(finishOrder,payload);
+      if(response.flag === 0){
+        message.success('订单节算完成');
+        if(callback){callback()}
+      }else{
+        message.error(response.msg);
+      }
+    },
+    *operationDeleteOrder({payload, callback},{call}){
+      const response = yield call(deleteOrder,payload);
+      if(response.flag === 0){
+        message.success('订单删除成功');
+        if(callback){callback()}
+      }else{
+        message.error(response.msg);
+      }
+    },
+    *operationAccomplishOrder({payload, callback},{call}){
+      const response = yield call(accomplishOrder,payload);
+      if(response.flag === 0){
+        message.success('订单已停止');
+        if(callback){callback()}
+      }else{
+        message.error(response.msg);
+      }
+    },
+    // 查询商家核算订单fetch
+    *fetchAccountShopList({payload, callback},{call,put}){
+      const response = yield call(accountShop,payload);
+      if(response.flag === 0){
+        yield put({
+          type: 'saveOrderAccountShopPage',
+          payload: response,
+        });
+      }else{
+        message.error(response.msg);
+      }
+    },
+    *downloadExport({payload},{call}){
+      const response = yield call(downloadExport,payload);
+      let url = window.URL.createObjectURL(response);
+      if(response.flag === 0){
+
+      }else{
+    /*    var a = document.createElement('a');
+        var url = window.URL.createObjectURL(blob);   // 获取 blob 本地文件连接 (blob 为纯二进制对象，不能够直接保存到磁盘上)
+        var filename = res.headers.get('Content-Disposition');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        window.URL.revokeObjectURL(url);*/
       }
     },
   },
@@ -92,6 +183,12 @@ export default {
       return {
         ...state,
         orderPage: action.payload.data.page,
+      };
+    },
+    saveOrderAccountShopPage(state, action) {
+      return {
+        ...state,
+        orderAccountShopPage: action.payload.data.page,
       };
     },
     saveCompanyPage(state, action) {

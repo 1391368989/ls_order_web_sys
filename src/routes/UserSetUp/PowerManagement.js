@@ -35,7 +35,7 @@ export default class PowerManagement extends Component {
     query:{
       page_row:15,
       page_page:1,
-      search_parentId_EQ:0
+    /*  search_parentId_EQ:0*/
     }
   };
 
@@ -65,6 +65,5 @@ export default class PowerManagement extends Component {
       </PageHeaderLayout>
     )
   }
-
 }
 

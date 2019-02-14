@@ -1,5 +1,6 @@
 const path = require('path');
-const host = 'http://112.27.113.51:9040';
+const host = 'http://192.168.1.84:8080';
+// const host = 'http://172.16.0.201:8080';
 export default {
   entry: 'src/index.js',
   extraBabelPlugins: [

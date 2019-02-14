@@ -9,7 +9,7 @@ import {
   Select,
   Cascader
 } from 'antd';
-
+import { mobilePattern, bankCodePattern } from '../../utils/utils.js';
 import styles from './index.less';
 const options = [{
   value: 'zhejiang',
@@ -139,7 +139,6 @@ export default class AddMember extends Component {
         };
       }else{
         let cityId = this.state.cityId;
-        console.log(this.state);
         values = {
           ...values,
           cityId:cityId,
@@ -162,9 +161,7 @@ export default class AddMember extends Component {
     this.props.form.resetFields();
   };
   onChange = (value, selectedOptions) => {
-    console.log(value, selectedOptions);
     const len = value.length-1;
-    console.log( len)
     this.state.cityId = value[len];
 
   };
@@ -262,10 +259,10 @@ export default class AddMember extends Component {
               </FormItem>
               <FormItem label='手机号' {...formItemLayout}>
                 {getFieldDecorator('linkphone',{
-                  rules: [{
-                    required: true,
-                    message: '请输入手机号!',
-                  }],
+                  rules: [
+                    { required: true, message: '请输入手机号!'},
+                    { pattern: mobilePattern, message: '手机号格式不对' },
+                  ],
                 })(<Input placeholder="请输入手机号"  style={style}/>)}
               </FormItem>
               {/*  <FormItem label='所属省份' {...formItemLayout}>
@@ -326,7 +323,6 @@ export default class AddMember extends Component {
                       placeholder='请选择所属省/市/区'
                       style={style}
                     />
-
                   )}
                 </FormItem>
               </div>
@@ -353,10 +349,9 @@ export default class AddMember extends Component {
                 </FormItem>
                 <FormItem label='银行' {...formItemLayout}>
                   {getFieldDecorator('bankName',{
-                    rules: [{
-                      required: true,
-                      message: '请输入银行!',
-                    }],
+                    rules: [
+                      {required: true, message: '请输入银行!'},
+                      ],
                   })(<Input placeholder="请输入银行"  style={style}/>)}
                 </FormItem>
                 <FormItem label='银行卡号' {...formItemLayout}>
@@ -364,7 +359,9 @@ export default class AddMember extends Component {
                     rules: [{
                       required: true,
                       message: '请输入银行卡号!',
-                    }],
+                    },
+                      { pattern: bankCodePattern, message: '银行卡号格式不对!' },
+                    ],
                   })(<Input placeholder="请输入银行卡号"  style={style}/>)}
                 </FormItem>
                 <FormItem label='开户行' {...formItemLayout}>

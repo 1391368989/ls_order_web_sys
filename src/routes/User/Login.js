@@ -20,7 +20,7 @@ export default class LoginPage extends Component {
     query:0,
   };
   componentDidMount() {
-    this.getImgCode();
+  /*  this.getImgCode();*/
   }
   onTabChange = type => {
     this.setState({ type });
@@ -28,6 +28,7 @@ export default class LoginPage extends Component {
 
   handleSubmit = (err, values) => {
     const { dispatch } = this.props;
+
     if (!err) {
       dispatch({
         type: 'login/login',
@@ -59,10 +60,7 @@ export default class LoginPage extends Component {
   getImgCode =()=>{
     const { dispatch } = this.props;
     dispatch({
-      type: 'login/getImg',
-      payload:{
-        a:++this.state.query
-      }
+      type: 'login/getImg'
     });
   };
   render() {

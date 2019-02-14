@@ -45,6 +45,15 @@ export async function getOrder(query) {
     body:query
   });
 }
+/*
+ 商家查看总订单
+ * */
+export async function getOrderByCompany(query) {
+  return request('/order/order/selectOrderByCompany', {
+    method: 'POST',
+    body:query
+  });
+}
 
 /*
  单个添加订单
@@ -55,6 +64,25 @@ export async function addOrder(query) {
     body:query
   });
 }
+/*
+ 修改订单信息
+ * */
+export async function updateOrder(query) {
+  return request('/order/order/updateOrder', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 批量添加订单
+ * */
+export async function insertOrders(query) {
+  return request('/order/order/insertOrders', {
+    method: 'POST',
+    body:query
+  });
+}
+
 /*
   订单与商家绑定
  * */
@@ -82,6 +110,36 @@ export async function interruptOrder(query) {
     body:query
   });
 }
+
+
+/*
+ 核算完成订单
+ * */
+export async function finishOrder(query) {
+  return request('/order/order/finishOrder', {
+    method: 'POST',
+    body:query
+  });
+}/*
+ 停止订单填写，订单进入审核阶段
+ * */
+export async function accomplishOrder(query) {
+  return request('/order/order/accomplishOrder', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 删除订单
+ * */
+export async function deleteOrder(query) {
+  return request('/order/order/deleteOrder', {
+    method: 'POST',
+    body:query
+  });
+}
+
+
 /*
  查询订单绑定商家
  * */
@@ -190,6 +248,15 @@ export async function platformRefuseChildOrders(query) {
  * */
 export async function reviewChildOrder(query) {
   return request('/order/order/reviewChildOrder', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 平台撤销操作
+ * */
+export async function accountShop(query) {
+  return request('/order/order/accountShop', {
     method: 'POST',
     body:query
   });
@@ -510,6 +577,161 @@ export async function ceshi(query) {
   return request('/order/msg/index', {
     method: 'POST',
     body:query
+  });
+}
+
+
+/*
+获取能够操作的商家
+*/
+export async function getUserCompany(query) {
+  return request('/order/role/getUserCompany', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 查询代理收入
+*/
+export async function selectChildOrderAgencyPrice(query) {
+  return request('/order/order/selectChildOrderAgencyPrice', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 查询订单代理价格分组
+*/
+export async function selectChildOrderAgencyPriceGroup(query) {
+  return request('/order/order/selectChildOrderAgencyPriceGroup', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 查询资金折线图
+*/
+export async function selectAgencyPriceLineChart(query) {
+  return request('/order/order/selectAgencyPriceLineChart', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 查询提现金额
+*/
+export async function selectDrawingsPrice(query) {
+  return request('/order/drawings/selectDrawingsPrice', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 添加提现信息
+*/
+export async function insertDrawings(query) {
+  return request('/order/drawings/insertDrawings', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 分页查询提现列表
+*/
+export async function selectDrawings(query) {
+  return request('/order/drawings/selectDrawings', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 同意提现
+*/
+export async function agreeDrawings(query) {
+  return request('/order/drawings/agreeDrawings', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 拒绝提现请求
+*/
+export async function rejectDrawings(query) {
+  return request('/order/drawings/rejectDrawings', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 查询网点报单
+*/
+export async function selectCompanyReception(query) {
+  return request('/order/drawings/selectCompanyReception', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 添加网点报表
+*/
+export async function insertCompanyReception(query) {
+  return request('/order/drawings/insertCompanyReception', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 撤销网点报销单
+*/
+export async function reviewCompanyReception(query) {
+  return request('/order/drawings/reviewCompanyReception', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 审核报销单
+*/
+/*export async function commitCompanyReceptions(query) {
+  return request('/order/drawings/commitCompanyReceptions', {
+    method: 'POST',
+    body:query
+  });
+}*/
+/*
+ 提交报销单
+*/
+export async function commitCompanyReceptions(query) {
+  return request('/order/drawings/commitCompanyReceptions', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 提供商订单查询
+*/
+export async function selectOrderPromulgator(query) {
+  return request('/order/order/selectOrderPromulgator', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 提供商已打款
+*/
+export async function updateAccountShopStatue(query) {
+  return request('/order/order/updateAccountShopStatue', {
+    method: 'POST',
+    body:query
+  });
+}
+/*
+ 下载表
+*/
+export async function downloadExport(query) {
+  return request('/order/order/export', {
+    method: 'POST',
+
   });
 }
 

@@ -32,6 +32,7 @@ const dynamicWrapper = (app, models, component) => {
       return createElement(component().default, {
         ...props,
         routerData: routerDataCache,
+        ceshi:'测试'
       });
     };
   }
@@ -74,19 +75,19 @@ export const getRouterData = app => {
     '/': {
       component: dynamicWrapper(app, ['user', 'login', 'menu'], () => import('../layouts/BasicLayout')),
     },
+    '/dashboard/workplace': {
+      component: dynamicWrapper(app, ['workplace'], () =>
+        import('../routes/Dashboard/Workplace')
+      ),
+      /*  hideInBreadcrumb: true,
+        name: '工作台',
+        authority: 'admin',*/
+    },
     '/dashboard/analysis': {
       component: dynamicWrapper(app, ['chart'], () => import('../routes/Dashboard/Analysis')),
     },
     '/dashboard/monitor': {
       component: dynamicWrapper(app, ['monitor'], () => import('../routes/Dashboard/Monitor')),
-    },
-    '/dashboard/workplace': {
-      component: dynamicWrapper(app, ['workplace'], () =>
-        import('../routes/Dashboard/Workplace')
-      ),
-    /*  hideInBreadcrumb: true,
-      name: '工作台',
-      authority: 'admin',*/
     },
     //客单分析
     '/dashboard/order-analysis': {
@@ -107,29 +108,29 @@ export const getRouterData = app => {
       component: dynamicWrapper(app, [], () => import('../routes/Order/VerifiedOrder')),
     },
     '/order/business-accounting-order': {
-      component: dynamicWrapper(app, [], () => import('../routes/Order/BusinessAccountingOrder')),
+      component: dynamicWrapper(app, ['order','childOrder'], () => import('../routes/Order/BusinessAccountingOrder')),
     },
     '/order/oder-details': {
       component: dynamicWrapper(app, [], () => import('../routes/Order/OderDetails')),
     },
     //财务
     '/finance/agent-put-forward': {
-      component: dynamicWrapper(app, [], () => import('../routes/Finance/AgentPutForward')),
+      component: dynamicWrapper(app, ['finance'], () => import('../routes/Finance/AgentFiance')),
     },
     '/finance/merchant-examines': {
-      component: dynamicWrapper(app, [], () => import('../routes/Finance/MerchantExamine')),
+      component: dynamicWrapper(app, ['finance','order','childOrder'], () => import('../routes/Finance/MerchantExamine')),
     },
     '/finance/merchant-examine/merchant-examine-Details': {
-      component: dynamicWrapper(app, [], () => import('../routes/Finance/Details')),
+      component: dynamicWrapper(app, ['finance'], () => import('../routes/Finance/Details')),
     },
     '/finance/reimbursement-information': {
-      component: dynamicWrapper(app, [], () => import('../routes/Finance/ReimbursementInformation')),
+      component: dynamicWrapper(app, ['dotfinance','finance','childOrder'], () => import('../routes/Finance/ReimbursementInformation')),
     },
     '/finance/reimbursement-info': {
-      component: dynamicWrapper(app, [], () => import('../routes/Finance/ReimbursementInfo')),
+      component: dynamicWrapper(app, ['finance'], () => import('../routes/Finance/ReimbursementInfo')),
     },
     '/finance/agent-fiance': {
-      component: dynamicWrapper(app, [], () => import('../routes/Finance/AgentFiance')),
+      component: dynamicWrapper(app, ['finance','selecttype'], () => import('../routes/Finance/AgentPutForward')),
     },
     //用户
     '/user-set-up/user-management': {
@@ -221,6 +222,9 @@ export const getRouterData = app => {
     },
     '/phone/info': {
       component: dynamicWrapper(app, ['mobile'], () => import('../routes/Mobile/UserInfo')),
+    },
+    '/phone/list': {
+      component: dynamicWrapper(app, ['mobile'], () => import('../routes/Mobile/UserList')),
     },
     '/phone/success': {
       component: dynamicWrapper(app, [], () => import('../routes/Mobile/Success')),

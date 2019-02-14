@@ -1,7 +1,6 @@
 import { routerRedux } from 'dva/router';
 import { stringify } from 'qs';
-import { toLogin } from '../services/login';
-import { getImg } from '../services/createSecurityCode';
+import { toLogin ,getImg } from '../services/login';
 import { setAuthority } from '../utils/authority';
 import { reloadAuthorized } from '../utils/Authorized';
 import { setUserInfo} from  '../utils/userInfo'
@@ -9,14 +8,14 @@ import { getPageQuery } from '../utils/utils';
 
 export default {
   namespace: 'login',
-
   state: {
-    status: undefined,
+    status: 1,
     codeImg:''
   },
 
   effects: {
     *login({ payload }, { call, put }) {
+
       const response = yield call(toLogin, payload);
       yield put({
         type: 'changeLoginStatus',
@@ -42,6 +41,12 @@ export default {
           }
         }
         yield put(routerRedux.replace(redirect || '/'));
+      }else{
+        const res = yield call(getImg );
+        yield put({
+          type: 'saveImg',
+          payload: res,
+        });
       }
     },
     *logout(_, { put }) {
@@ -62,8 +67,8 @@ export default {
         })
       );
     },
-    *getImg({ payload },{call,put}){
-      const response = yield call(getImg ,payload);
+    *getImg({ _ },{call,put}){
+      const response = yield call(getImg );
       yield put({
         type: 'saveImg',
         payload: response,
@@ -77,7 +82,7 @@ export default {
         //登录成功
         setAuthority('user');
       }else {
-        //登录成功或退出登录
+        //退出登录
         setAuthority('guest');
       }
       return {
@@ -86,8 +91,9 @@ export default {
         type: payload.msg,
       };
     },
-    saveImg(_, { payload }){
+    saveImg(state, { payload }){
       return {
+        ...state,
         codeImg: payload,
       };
     }

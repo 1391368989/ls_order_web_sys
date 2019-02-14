@@ -1,20 +1,13 @@
-import React, { PureComponent } from 'react';
-import { Form, Icon, Input, Button } from 'antd';
-import { getQuery, isRepeat } from '../../utils/utils.js'
+import React, { PureComponent,Fragment } from 'react';
+import { Form, Icon, Input, Button, message, Card } from 'antd';
+import { getQuery, isRepeat, mobilePattern, idPattern } from '../../utils/utils.js'
 import { connect } from 'dva';
 import styles from './index.less'
 import {routerRedux} from 'dva/router'
 import SowingMap from '../../components/Mobile/SowingMap'
 import ListView from '../../components/Mobile/ListView'
+import Result from '../../components/Result';
 const FormItem = Form.Item;
-function  getArr() {
-  let arr = [];
-  for (let  i = 0;i < 60; i++){
-    arr.push(i);
-  }
-  return arr;
-}
-const arr = getArr();
 @Form.create()
 @connect(({ mobile, loading ,listLoading}) => ({
   mobile,
@@ -32,23 +25,23 @@ export default class UserInfo extends PureComponent{
     const search = props.location.search;
     const query = getQuery(search);
     const state = this.state;
+    let companyId = -1;
+    if(query&&query.companyId !== undefined){
+      companyId = query.companyId
+    }
     this.state = {
       ...state,
-      companyId:query.companyId,
+      companyId: parseInt(companyId),
       query:{
-        "page": 1,
-        "rows": 10,
+        page: 1,
+        rows: 10,
       },
     };
   }
-  getUserOrderList=()=>{
-    const {dispatch} = this.props;
-    dispatch({
-      type: 'mobile/userOwnedOrder',
-      payload:{}
-    });
-  };
+
   handleSubmit = () => {
+   /* console.log(this.state.data);
+    return*/
     const {dispatch} = this.props;
     dispatch({
       type: 'mobile/submitData',
@@ -62,24 +55,36 @@ export default class UserInfo extends PureComponent{
     this.props.form.validateFields(['userName','userPhone','userIdCode'],(err,values) => {
       if (!err) {
         const {dispatch} = this.props;
+        let payload = {
+          ...values,
+          companyId:this.state.companyId
+        };
         dispatch({
           type: 'mobile/saveUserInfo',
-          payload:{
-            ...values,
-            companyId:this.state.companyId
-          },
+          payload:payload,
           callback: ()=>{
-            this.setState({
+          /*  this.setState({
               step:2
-            });
-            this.getOrderList();
-            this.getUserOrderList();
+            });*/
+            payload = JSON.stringify(payload);
+            localStorage.setItem('user',payload);
+            dispatch(routerRedux.push('/phone/list'));
+          /*  this.getOrderList();
+            this.getUserOrderList();*/
           }
         });
       }
     });
   };
-  getOrderList =()=>{
+  /* getUserOrderList=()=>{
+    const {dispatch} = this.props;
+    dispatch({
+      type: 'mobile/userOwnedOrder',
+      payload:{}
+    });
+  };*/
+
+/*  getOrderList =()=>{
     const {dispatch} = this.props;
     dispatch({
       type: 'mobile/pagingOrder',
@@ -88,7 +93,7 @@ export default class UserInfo extends PureComponent{
         this.setState({load: 0});
       }
     });
-  };
+  };*/
   back = () =>{
     this.setState({
       step:1,
@@ -203,60 +208,92 @@ export default class UserInfo extends PureComponent{
     const { mobile ,loading, } = this.props;
     const { load ,step } = this.state;
     const { orderPage} = mobile;
+    const extra = (
+      <Fragment>
+        <div>
+          <span>未获取到网点信息，请重新扫码！</span>
+        </div>
+      </Fragment>
+    );
     return(
       <div>
-        <div className={styles.body} onScroll={e=> this.onScroll(e)}>
-          <div>
-            <SowingMap/>
-          </div>
-          <div style={{textAlign:'center'}}>{step === 1 ? '基本信息' : '订单选择'}</div>
-          <div>
-            <Form>
-              <div style={step === 1?{}:{display:'none'}} className={styles.box}>
-                <FormItem>
-                  {getFieldDecorator('userName', {
-                    rules: [{ required: true, message: '请输入姓名！' }],
-                  })(
-                    <Input size="large" prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="姓名" />
-                  )}
-                </FormItem>
-                <FormItem>
-                  {getFieldDecorator('userPhone', {
-                    rules: [{ required: true, message: '请输入手机号!' }],
-                  })(
-                    <Input size="large" prefix={<Icon type="mobile" style={{ color: 'rgba(0,0,0,.25)' }} />} type="number" placeholder="手机号" />
-                  )}
-                </FormItem>
-                <FormItem>
-                  {getFieldDecorator('userIdCode', {
-                    rules: [{ required: true, message: '请输入身份证号!' }],
-                  })(
-                    <Input size="large" prefix={<Icon type="idcard" style={{ color: 'rgba(0,0,0,.25)' }} />} type="number" placeholder="身份证号" />
-                  )}
-                </FormItem>
-                <Button size="large" type="primary" className="login-form-button" onClick={()=>this.next()} loading={loading}>
-                  下一步
-                </Button>
-              </div>
-            </Form>
-            <div style={step === 2?{}:{display:'none'}} className={styles.listBox}>
-              {step === 2 &&
-              <ListView
-                page={orderPage}
-                renderList={this.renderList}
-                load={load}
-              />
-              }
+        <div>
+          <div className={styles.body} onScroll={e=> this.onScroll(e)}>
+            <div>
+              <SowingMap/>
             </div>
-          </div>
-        </div>
-        <div className={styles.footer} style={step === 2?{}:{display:'none'}}>
-         {/* <Button size="large" type="primary" className="info-form-button" onClick={()=>this.back()} style={{marginRight:'10%'}}>
+            {this.state.companyId <0 &&
+            <Card bordered={false} >
+              <Result
+                type="error"
+                title="扫码失败"
+                description="未获取到网点信息，请重新扫码。"
+                style={{ marginTop: 48, marginBottom: 16 }}
+              />
+            </Card>
+            }
+            {this.state.companyId >= 0&&
+            <div>
+              <div style={{textAlign:'center'}} className={styles.title}>基本信息</div>
+              <div>
+                <Form>
+                  <div style={step === 1?{}:{display:'none'}} className={styles.box}>
+                    <FormItem>
+                      {getFieldDecorator('userName', {
+                        rules: [
+                          { required: true, message: '请输入姓名！' },
+                          { max: 10, message: '姓名长度不能超过10个字符！' },
+                        ],
+                      })(
+                        <Input size="large" prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="姓名" />
+                      )}
+                    </FormItem>
+                    <FormItem>
+                      {getFieldDecorator('userPhone', {
+                        rules: [
+                          { required: true, message: '请输入手机号!' },
+                          { pattern: mobilePattern, message: '手机号格式不对' },
+                        ],
+                      })(
+                        <Input size="large" prefix={<Icon type="mobile" style={{ color: 'rgba(0,0,0,.25)' }} />} type="number" placeholder="手机号" />
+                      )}
+                    </FormItem>
+                    <FormItem>
+                      {getFieldDecorator('userIdCode', {
+                        rules: [
+                          { required: true, message: '请输入身份证号!' },
+                          { pattern: idPattern, message: '输入的身份证号不合法!' }
+                        ],
+                      })(
+                        <Input size="large" prefix={<Icon type="idcard" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="身份证号" />
+                      )}
+                    </FormItem>
+                    <Button size="large" type="primary" className="login-form-button" onClick={()=>this.next()} loading={loading}>
+                      下一步
+                    </Button>
+                  </div>
+                </Form>
+                <div style={step === 2?{}:{display:'none'}} className={styles.listBox}>
+                  {step === 2 &&
+                  <ListView
+                    page={orderPage}
+                    renderList={this.renderList}
+                    load={load}
+                  />
+                  }
+                </div>
+              </div>
+              <div className={styles.footer} style={step === 2?{}:{display:'none'}}>
+                {/* <Button size="large" type="primary" className="info-form-button" onClick={()=>this.back()} style={{marginRight:'10%'}}>
             上一步
           </Button>*/}
-          <Button size="large" type="primary" onClick={this.handleSubmit} style={{width:'100%'}}>
-            提交
-          </Button>
+                <Button size="large" type="primary" onClick={this.handleSubmit} style={{width:'100%'}}>
+                  提交
+                </Button>
+              </div>
+            </div>
+            }
+          </div>
         </div>
       </div>
     )

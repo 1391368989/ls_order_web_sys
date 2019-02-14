@@ -43,7 +43,7 @@ export default class AgentInfo extends Component {
     load:false,
   };
   componentDidMount() {
-    this.connection();
+   // this.connection();
     this.initPagination();
     const { dispatch } = this.props;
     dispatch({
@@ -191,7 +191,13 @@ export default class AgentInfo extends Component {
       title: '序号',
       dataIndex: 'key',
       key: 'key',
-    }, {
+    },
+      {
+        title: '类型',
+        dataIndex: 'typelabel',
+        key: 'typelabel',
+      },
+      {
       title: '网点名称',
       dataIndex: 'name',
       key: 'name',
@@ -234,14 +240,14 @@ export default class AgentInfo extends Component {
         render: (text, record) => {
           return (
             <div>
-              <a type="primary" href="javascript:;">
+             {/* <a type="primary" href="javascript:;">
                 禁用
               </a>
               <Divider type="vertical" />
               <a type="danger" href="javascript:;">
                 重置密码
               </a>
-              <Divider type="vertical" />
+              <Divider type="vertical" />*/}
               <a onClick={()=>this.editCompany(record)}>
                 编辑
               </a>

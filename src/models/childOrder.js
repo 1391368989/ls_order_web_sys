@@ -48,7 +48,7 @@ export default {
         message.success('操作成功');
         if(callback){callback()}
       }else{
-        message.success(response.msg);
+        message.error(response.msg);
       }
     },
     *batchOperation({payload,callback},{call}){
@@ -74,10 +74,10 @@ export default {
       }
       if(response.flag === 0){
         message.success('操作成功');
-        if(callback){callback()}
       }else{
-        message.success(response.msg);
+        message.error(response.msg);
       }
+      if(callback){callback()}
     },
     *operation({payload,callback},{call}){
       let response;
@@ -104,7 +104,7 @@ export default {
         message.success('操作成功');
         if(callback){callback()}
       }else{
-        message.success(response.msg);
+        message.error(response.msg);
       }
     },
     /**fetchAuditingAdopt({payload,callback},{call}){

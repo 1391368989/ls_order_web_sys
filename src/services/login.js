@@ -1,4 +1,3 @@
-import { stringify } from 'qs';
 import request from '../utils/request';
 
 export async function toLogin(query) {
@@ -6,4 +5,8 @@ export async function toLogin(query) {
     method: 'POST',
     body:query
   });
+}
+
+export async function getImg() {
+  return request('/getVerify');
 }

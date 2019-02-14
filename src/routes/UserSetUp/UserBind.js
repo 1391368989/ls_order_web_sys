@@ -6,7 +6,6 @@ import { connect } from 'dva';
 }))
 export default class UserBind extends PureComponent{
   pagingChange =(value)=>{
-    console.log(value.current);
     let query = {
       page_rows:10,
       page_page:value.current,

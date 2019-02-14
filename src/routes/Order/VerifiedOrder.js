@@ -147,7 +147,6 @@ export default class OrderInfo extends Component {
   }
 
   onSelectChange = (selectedRowKeys) => {
-    console.log('selectedRowKeys changed: ', selectedRowKeys);
     this.setState({ selectedRowKeys });
   }
   showModal = () => {
@@ -164,7 +163,6 @@ export default class OrderInfo extends Component {
   }
 
   handleCancel = (e) => {
-    console.log(e);
     this.setState({
       visible: false,
     });

@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer';
-
+import {localhost} from '../utils/utils.js'
 describe('Login', () => {
   let browser;
   let page;
@@ -10,7 +10,7 @@ describe('Login', () => {
 
   beforeEach(async () => {
     page = await browser.newPage();
-    await page.goto('http://localhost:8000/#/user/login', { waitUntil: 'networkidle2' });
+    await page.goto(localhost+'/#/user/login', { waitUntil: 'networkidle2' });
     await page.evaluate(() => window.localStorage.setItem('antd-pro-authority', 'guest'));
   });
 
@@ -35,7 +35,7 @@ describe('Login', () => {
     await page.click('button[type="submit"]');
     await page.waitForSelector('.ant-layout-sider h1'); // should display error
     const text = await page.evaluate(() => document.body.innerHTML);
-    expect(text).toContain('<h1>Ant Design Pro</h1>');
+    expect(text).toContain('<h1>订单管理系统</h1>');
   });
 
   afterAll(() => browser.close());

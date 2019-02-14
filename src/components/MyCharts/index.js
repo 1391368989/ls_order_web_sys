@@ -11,17 +11,19 @@ import autoHeight from './autoHeight';
 export default class MyCharts extends React.Component {
   start = {
     xAxis:[],
-    series:[]
-  }
+    series:[],
+    yAxis:{},
+  };
   componentWillUpdate (props){
-    const {data ,config} = props;
-    this.filter(data,config)
+    const {data ,config,yAxis} = props;
+    this.start.yAxis = yAxis;
+    this.filter(data,config);
     this.initChart();
   };
   filter(data,config){
-    this.start.xAxis =[]
-    const {x} = config
-    const {series} = config
+    this.start.xAxis =[];
+    const {x} = config;
+    const {series} = config;
 
     for(let k in series){
       series[k] ={
@@ -77,9 +79,6 @@ export default class MyCharts extends React.Component {
           saveAsImage: {show: true}
         }
       },
-      legend: {
-        data:['实际单量','预期单量','合格率']
-      },
       xAxis: [
         {
           type: 'category',
@@ -92,11 +91,11 @@ export default class MyCharts extends React.Component {
       yAxis: [
         {
           type: 'value',
-          name: '单量',
+          name: this.start.yAxis.y1.name,
           min: 0,
           interval: 50,
           axisLabel: {
-            formatter: '{value} 单'
+            formatter: '{value} '+this.start.yAxis.y1.value
           },
           // 控制网格线是否显示
           splitLine: {

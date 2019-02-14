@@ -34,6 +34,20 @@ function checkStatus(response) {
   error.response = response;
   throw error;
 }
+/*
+function getCookie(name){
+  let strcookie = document.cookie;//获取cookie字符串
+  let arrcookie = strcookie.split("; ");//分割
+//遍历匹配
+  for ( let i = 0; i < arrcookie.length; i++) {
+    let arr = arrcookie[i].split("=");
+    if (arr[0] == name){
+      return arr[1];
+    }
+  }
+  return "";
+}
+*/
 
 /**
  * Requests a URL, returning a promise.
@@ -43,9 +57,10 @@ function checkStatus(response) {
  * @return {object}           An object containing either "data" or "err"
  */
 export default function request(url, options) {
+  /*let JSESSIONID = getCookie('JSESSIONID');*/
   const defaultOptions = {
     credentials: 'include',
-    timeout:1000*60*10
+    timeout:1000*10
   };
   const newOptions = { ...defaultOptions, ...options };
   if (
@@ -54,9 +69,11 @@ export default function request(url, options) {
     newOptions.method === 'DELETE'
   ) {
     if (!(newOptions.body instanceof FormData)) {
+
       newOptions.headers = {
         Accept: 'application/json',
         'Content-Type': 'application/json; charset=utf-8',
+   /*     'x-csrf-token':JSESSIONID,*/
         ...newOptions.headers,
       };
       // 若是有做鉴权token , 就给头部带上token
@@ -86,6 +103,7 @@ export default function request(url, options) {
     .catch(e => {
       const { dispatch } = store;
       const status = e.name;
+      console.log(e);
       if (status === 401) {
         dispatch({
           type: 'login/logout',
